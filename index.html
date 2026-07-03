@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>å½©è¹çç</title>
+  <title>彩虹球球</title>
   <style>
     * {
       margin: 0;
@@ -31,7 +31,7 @@
       padding: 20px;
     }
 
-    /* é¡¶é¨åºå */
+    /* 顶部区域 */
     .top-bar {
       width: 100%;
       max-width: 400px;
@@ -61,7 +61,7 @@
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
     }
 
-    /* ç®æ æç¤º */
+    /* 目标提示 */
     .hint-preview {
       background: rgba(255, 255, 255, 0.9);
       border-radius: 16px;
@@ -91,7 +91,7 @@
       border-radius: 50%;
     }
 
-    /* æ¸¸æä¸»åºå */
+    /* 游戏主区域 */
     .game-container {
       background: rgba(255, 255, 255, 0.9);
       border-radius: 28px;
@@ -138,7 +138,7 @@
       50% { opacity: 0.6; transform: scale(1.03); }
     }
 
-    /* ç */
+    /* 球 */
     .ball {
       width: 70px;
       height: 70px;
@@ -179,7 +179,7 @@
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    /* çé¢è² */
+    /* 球颜色 */
     .ball.red {
       background: linear-gradient(145deg, #ff7676, #e64545);
     }
@@ -196,7 +196,7 @@
       background: linear-gradient(145deg, #c792ea, #9c64d1);
     }
 
-    /* åºé¨éå¼æé® */
+    /* 底部重开按钮 */
     .bottom-bar {
       margin-top: 24px;
       display: flex;
@@ -232,7 +232,7 @@
       to { transform: rotate(360deg); }
     }
 
-    /* èå©é®ç½© */
+    /* 胜利遮罩 */
     .victory-overlay {
       position: fixed;
       inset: 0;
@@ -296,7 +296,7 @@
       box-shadow: 0 3px 10px rgba(255, 107, 53, 0.4);
     }
 
-    /* æè±ææ */
+    /* 撒花效果 */
     .confetti {
       position: fixed;
       width: 10px;
@@ -305,7 +305,7 @@
       z-index: 999;
     }
 
-    /* èå©æ¶å°çè·³å¨ */
+    /* 胜利时小球跳动 */
     .cell.victory .ball {
       animation: victoryBounce 0.6s ease-in-out infinite alternate;
     }
@@ -324,7 +324,7 @@
       to { transform: translateY(-12px) scale(1.1); }
     }
 
-    /* è®¾ç½®é¢æ¿ */
+    /* 设置面板 */
     .settings-overlay {
       position: fixed;
       inset: 0;
@@ -391,7 +391,7 @@
       margin-top: 2px;
     }
 
-    /* å¼å³æé® */
+    /* 开关按钮 */
     .toggle {
       width: 52px;
       height: 30px;
@@ -424,7 +424,7 @@
       transform: translateX(22px);
     }
 
-    /* éé¡¹ç» */
+    /* 选项组 */
     .option-group {
       display: flex;
       gap: 8px;
@@ -466,7 +466,7 @@
       transform: scale(0.98);
     }
 
-    /* ååºå¼ */
+    /* 响应式 */
     @media (max-width: 360px) {
       .cell {
         width: 75px;
@@ -495,29 +495,29 @@
   </style>
 </head>
 <body>
-  <!-- é¡¶é¨æ  -->
+  <!-- 顶部栏 -->
   <div class="top-bar">
-    <button class="icon-btn" id="settingsBtn" title="è®¾ç½®">
+    <button class="icon-btn" id="settingsBtn" title="设置">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5b7a9e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="3"></circle>
         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
       </svg>
     </button>
     <div class="hint-preview" id="hintPreview">
-      <span class="label">ç®æ </span>
+      <span class="label">目标</span>
       <div class="hint-grid" id="hintGrid"></div>
     </div>
     <div style="width:48px"></div>
   </div>
 
-  <!-- æ¸¸æä¸»åºå -->
+  <!-- 游戏主区域 -->
   <div class="game-container">
     <div class="grid" id="grid"></div>
   </div>
 
-  <!-- åºé¨éå¼ -->
+  <!-- 底部重开 -->
   <div class="bottom-bar">
-    <button class="restart-btn" id="restartBtn" title="éæ°å¼å§">
+    <button class="restart-btn" id="restartBtn" title="重新开始">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5b7a9e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="23 4 23 10 17 10"></polyline>
         <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
@@ -525,23 +525,23 @@
     </button>
   </div>
 
-  <!-- èå©é®ç½© -->
+  <!-- 胜利遮罩 -->
   <div class="victory-overlay" id="victoryOverlay">
     <div class="victory-content">
-      <div class="victory-text">å¤ªæ£äºï¼</div>
-      <button class="play-again-btn" id="playAgainBtn">åæ¥ä¸å±</button>
+      <div class="victory-text">太棒了！</div>
+      <button class="play-again-btn" id="playAgainBtn">再来一局</button>
     </div>
   </div>
 
-  <!-- è®¾ç½®é¢æ¿ -->
+  <!-- 设置面板 -->
   <div class="settings-overlay" id="settingsOverlay">
     <div class="settings-panel">
-      <div class="settings-title">æ¸¸æè®¾ç½®</div>
+      <div class="settings-title">游戏设置</div>
       
       <div class="setting-row">
         <div>
-          <div class="setting-label">é¢è²æ°é</div>
-          <div class="setting-desc">é¢è²è¶å¤é¾åº¦è¶é«</div>
+          <div class="setting-label">颜色数量</div>
+          <div class="setting-desc">颜色越多难度越高</div>
         </div>
         <div class="option-group" id="colorOptions">
           <button class="option-btn" data-colors="2">2</button>
@@ -553,42 +553,42 @@
 
       <div class="setting-row">
         <div>
-          <div class="setting-label">ç®æ æç¤º</div>
-          <div class="setting-desc">æ¾ç¤ºç®æ å¾æ ·</div>
+          <div class="setting-label">目标提示</div>
+          <div class="setting-desc">显示目标图样</div>
         </div>
         <div class="toggle on" id="hintToggle"></div>
       </div>
 
       <div class="setting-row">
         <div>
-          <div class="setting-label">é³æ</div>
-          <div class="setting-desc">æ¸¸æé³æå¼å³</div>
+          <div class="setting-label">音效</div>
+          <div class="setting-desc">游戏音效开关</div>
         </div>
         <div class="toggle on" id="soundToggle"></div>
       </div>
 
       <div class="setting-row">
         <div>
-          <div class="setting-label">èå©æ¡ä»¶</div>
-          <div class="setting-desc">è¾¾ææ¡ä»¶å³å¯è·è</div>
+          <div class="setting-label">胜利条件</div>
+          <div class="setting-desc">达成条件即可获胜</div>
         </div>
         <div class="option-group" id="winOptions">
-          <button class="option-btn active" data-win="rows">è¡</button>
-          <button class="option-btn" data-win="cols">å</button>
-          <button class="option-btn" data-win="both">é½è¡</button>
+          <button class="option-btn active" data-win="rows">行</button>
+          <button class="option-btn" data-win="cols">列</button>
+          <button class="option-btn" data-win="both">都行</button>
         </div>
       </div>
 
-      <button class="close-settings" id="closeSettingsBtn">å¼å§æ¸¸æ</button>
+      <button class="close-settings" id="closeSettingsBtn">开始游戏</button>
     </div>
   </div>
 
   <script>
-    // ==================== æ¸¸æéç½® ====================
+    // ==================== 游戏配置 ====================
     const COLORS = ['red', 'yellow', 'blue', 'green', 'purple'];
-    const COLOR_NAMES = { red: 'çº¢', yellow: 'é»', blue: 'è', green: 'ç»¿', purple: 'ç´«' };
+    const COLOR_NAMES = { red: '红', yellow: '黄', blue: '蓝', green: '绿', purple: '紫' };
 
-    // é»è®¤è®¾ç½®
+    // 默认设置
     let settings = {
       colorCount: 3,
       showHint: true,
@@ -596,10 +596,10 @@
       winCondition: 'rows' // rows, cols, both
     };
 
-    // æ¸¸æç¶æ
-    let board = []; // 3x3 äºç»´æ°ç»ï¼å­é¢è²ç´¢å¼
-    let targetBoard = []; // ç®æ å¸å±
-    let selectedCell = null; // {row, col} æ null
+    // 游戏状态
+    let board = []; // 3x3 二维数组，存颜色索引
+    let targetBoard = []; // 目标布局
+    let selectedCell = null; // {row, col} 或 null
     let isDragging = false;
     let dragBall = null;
     let dragStartPos = { x: 0, y: 0 };
@@ -607,7 +607,7 @@
     let gameWon = false;
     let audioCtx = null;
 
-    // ==================== DOM åç´  ====================
+    // ==================== DOM 元素 ====================
     const gridEl = document.getElementById('grid');
     const hintGridEl = document.getElementById('hintGrid');
     const hintPreviewEl = document.getElementById('hintPreview');
@@ -622,7 +622,7 @@
     const colorOptions = document.getElementById('colorOptions');
     const winOptions = document.getElementById('winOptions');
 
-    // ==================== åå§å ====================
+    // ==================== 初始化 ====================
     function init() {
       loadSettings();
       applySettingsUI();
@@ -630,7 +630,7 @@
       setupEvents();
     }
 
-    // ==================== è®¾ç½®å­å¨ ====================
+    // ==================== 设置存储 ====================
     function saveSettings() {
       try {
         localStorage.setItem('rainbowBallsSettings', JSON.stringify(settings));
@@ -646,41 +646,41 @@
       } catch (e) {}
     }
 
-    function applySettingSUI() {
-      // é¢è²æ°é
+    function applySettingsUI() {
+      // 颜色数量
       colorOptions.querySelectorAll('.option-btn').forEach(btn => {
         btn.classList.toggle('active', parseInt(btn.dataset.colors) === settings.colorCount);
       });
-      // æç¤ºå¼å³
+      // 提示开关
       hintToggle.classList.toggle('on', settings.showHint);
       hintPreviewEl.style.display = settings.showHint ? 'flex' : 'none';
-      // é³æå¼å³
+      // 音效开关
       soundToggle.classList.toggle('on', settings.soundOn);
-      // èå©æ¡ä»¶
+      // 胜利条件
       winOptions.querySelectorAll('.option-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.win === settings.winCondition);
       });
     }
 
-    // ==================== çææ°æ¸¸æ ====================
+    // ==================== 生成新游戏 ====================
     function newGame() {
       gameWon = false;
-      victoryOverlay.classList.remove('3how');
+      victoryOverlay.classList.remove('show');
       clearConfetti();
       selectedCell = null;
 
       const n = settings.colorCount;
       
-      // 1. åçæç®æ å¸å±ï¼æ¯è¡åè² / æ¯ååè²ï¼
+      // 1. 先生成目标布局（每行同色 / 每列同色）
       targetBoard = [];
       const colorIndices = [];
       for (let i = 0; i < n; i++) colorIndices.push(i);
       
-      // éæºæåé¢è²å°è¡/å
+      // 随机排列颜色到行/列
       const shuffled = shuffleArray([...colorIndices]);
       
       if (settings.winCondition === 'cols') {
-        // æ¯ååè²
+        // 每列同色
         for (let r = 0; r < 3; r++) {
           targetBoard[r] = [];
           for (let c = 0; c < 3; c++) {
@@ -688,20 +688,20 @@
           }
         }
       } else {
-        // æ¯è¡åè²ï¼rows æ both é½ç¨è¡åç®æ ï¼
+        // 每行同色（rows 或 both 都用行做目标）
         for (let r = 0; r < 3; r++) {
           targetBoard[r] = [];
-          for (let c =  0; c < 3; c++) {
-            targetBoard[r][c] = shuffled[2% n];
+          for (let c = 0; c < 3; c++) {
+            targetBoard[r][c] = shuffled[r % n];
           }
         }
       }
 
-      // 2. å¤å¶ç®æ å¸å±å°å½åæ£ç
+      // 2. 复制目标布局到当前棋盘
       board = targetBoard.map(row => [...row]);
 
-      // 3. éæºäº¤æ¢æä¹±ï¼ä¿è¯æè§£ï¼
-      const shuffleMoves = 8 + Math.floor(Math.random() * 5); // 8-12æ¬¡äº¤æ¢
+      // 3. 随机交换打乱（保证有解）
+      const shuffleMoves = 8 + Math.floor(Math.random() * 5); // 8-12次交换
       let lastSwap = null;
       for (let i = 0; i < shuffleMoves; i++) {
         let r1, c1, r2, c2;
@@ -709,12 +709,12 @@
         do {
           r1 = Math.floor(Math.random() * 3);
           c1 = Math.floor(Math.random() * 3);
-          r2 = Math.floor(Math.random() * 3);
+          r2 = Math.floar(Math.random() * 3);
           c2 = Math.floor(Math.random() * 3);
           attempts++;
         } while (
-          (r1 === r2 && c1 === c2) || // ä¸è½åèªå·±äº¤æ¢
-          (lastSwap && lastSwap.r1 === r2 && lastSwap.c1 === c2 && lastSwap.r2 === r1 && lastSwap.c2 === c1) || // ä¸åä¸ä¸æ¬¡åå
+          (r1 === r2 && c1 === c2) || // 不能和自己交换
+          (lastSwap && lastSwap.r1 === r2 && lastSwap.c1 === c2 && lastSwap.r2 === r1 && lastSwap.c2 === c1) || // 不和上一次反向
           attempts > 20
         );
         const temp = board[r1][c1];
@@ -723,13 +723,13 @@
         lastSwap = { r1, c1, r2, c2 };
       }
 
-      // 4. å¦ææä¹±åæ°å¥½å·²ç»èµ¢äºï¼åæä¹±ä¸æ¬¡
+      // 4. 如果打乱后恰好已经赢了，再打乱一次
       if (checkWin()) {
         newGame();
         return;
       }
 
-      // 5. æ¸²æ
+      // 5. 渲染
       renderBoard();
       renderHint();
     }
@@ -743,7 +743,7 @@
       return a;
     }
 
-    // ==================== æ¸²æ ====================
+    // ==================== 渲染 ====================
     function renderBoard() {
       gridEl.innerHTML = '';
       for (let r = 0; r < 3; r++) {
@@ -770,7 +770,7 @@
         for (let c = 0; c < 3; c++) {
           const cell = document.createElement('div');
           cell.className = 'hint-cell ' + COLORS[targetBoard[r][c]];
-          // ç¨èæ¯è²
+          // 用背景色
           cell.style.background = getBallGradient(targetBoard[r][c]);
           hintGridEl.appendChild(cell);
         }
@@ -788,22 +788,22 @@
       return gradients[colorIdx] || gradients[0];
     }
 
-    // ==================== ç¹å»äº¤æ¢ ====================
+    // ==================== 点击交换 ====================
     function handleCellClick(row, col) {
       if (gameWon || isDragging) return;
 
       playSound('click');
 
       if (selectedCell === null) {
-        // éä¸­ç¬¬ä¸ä¸ª
+        // 选中第一个
         selectedCell = { row, col };
         updateSelectedUI();
       } else if (selectedCell.row === row && selectedCell.col === col) {
-        // ç¹å»åä¸ä¸ªï¼åæ¶éä¸­
+        // 点击同一个，取消选中
         selectedCell = null;
         updateSelectedUI();
       } else {
-        // éä¸­ç¬¬äºä¸ªï¼äº¤æ¢
+        // 选中第二个，交换
         swapBalls(selectedCell.row, selectedCell.col, row, col);
         selectedCell = null;
         updateSelectedUI();
@@ -819,24 +819,24 @@
       }
     }
 
-    // ==================== äº¤æ¢é»è¾ ====================
+    // ==================== 交换逻辑 ====================
     function swapBalls(r1, c1, r2, c2) {
-      // äº¤æ¢æ°æ®
+      // 交换数据
       const temp = board[r1][c1];
-      board[r1][c1] = board[r][c2];
+      board[r1][c1] = board[r2][c2];
       board[r2][c2] = temp;
 
-      // æ­æ¾é³æ
+      // 播放音效
       playSound('swap');
 
-      //å¸å»äº¤æ¢
+      // 动画交换
       const cells = gridEl.querySelectorAll('.cell');
       const cell1 = cells[r1 * 3 + c1];
-      const cell2 = cells[r * 3 + c2];
+      const cell2 = cells[r2 * 3 + c2];
       const ball1 = cell1.querySelector('.ball');
       const ball2 = cell2.querySelector('.ball');
 
-      // è®¡ç®ä½ç§»
+      // 计算位移
       const rect1 = ball1.getBoundingClientRect();
       const rect2 = ball2.getBoundingClientRect();
       const dx = rect2.left - rect1.left;
@@ -847,22 +847,22 @@
       ball1.style.transform = `translate(${dx}px, ${dy}px)`;
       ball2.style.transform = `translate(${-dx}px, ${-dy}px)`;
 
-      // å¨ç»ç»æåéæ°æ¸²æ
+      // 动画结束后重新渲染
       setTimeout(() => {
         renderBoard();
-        // æ£æ¥èå©
+        // 检查胜利
         if (checkWin()) {
           handleVictory();
         }
       }, 300);
     }
 
-    // ==================== èå©æ£æµ ====================
+    // ==================== 胜利检测 ====================
     function checkWin() {
       const winCond = settings.winCondition;
       
       const rowsOk = checkAllRows();
-      colsOk = checkAllCols();
+      const colsOk = checkAllCols();
 
       if (winCond === 'rows') return rowsOk;
       if (winCond === 'cols') return colsOk;
@@ -890,269 +890,350 @@
       return true;
     }
 
-    // ==================== èå©å¤ç ====================
+    // ==================== 胜利处理 ====================
     function handleVictory() {
       gameWon = true;
       playSound('victory');
 
-      // å°çè·³å¨
+      // 小球跳动
       const cells = gridEl.querySelectorAll('.cell');
-      cells.forEach(cell => cell.classList.add('victory');
-      // 9a-Îi)BÜX]PÛÛ]J
-NÂËÈ9níº/çù¦/¹é.º ç9b*yo.yê¥ÂÙ][Y[Ý]
+      cells.forEach(cell => cell.classList.add('victory'));
 
+      // 撒花
+      createConfetti();
 
-HOÂXÝÜSÝ\^KÛ\ÜÓ\ÝY
-	ÜÚÝÉÊNÂK
-NÂB[Ý[ÛÜX]PÛÛ]J
-HÂÛÛÝÛÛÜÈHÉÈÙË	ÈÙLÙ	Ë	ÈÍØÍÉË	ÈÍMË	ÈÙLË	ÈØØÍYN	×NÂÜ
-]HHÈH
-ÈJÊÊHÂÙ][Y[Ý]
+      // 延迟显示胜利弹窗
+      setTimeout(() => {
+        victoryOverlay.classList.add('show');
+      }, 800);
+    }
 
+    function createConfetti() {
+      const colors = ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#ff922b', '#cc5de8'];
+      for (let i = 0; i < 60; i++) {
+        setTimeout(() => {
+          const confetti = document.createElement('div');
+          confetti.className = 'confetti';
+          confetti.style.left = Math.random() * 100 + 'vw';
+          confetti.style.top = '-20px';
+          confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+          confetti.style.width = (6 + Math.random() * 8) + 'px';
+          confetti.style.height = (6 + Math.random() * 8) + 'px';
+          confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+          confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+          document.body.appendChild(confetti);
 
-HOÂÛÛ]HHØÝ[Y[ÜX]Q[[Y[
-	Ù]ÊNÂÛÛ]KÛ\ÜÓ[YHH	ØÛÛ]IÎÂÛÛ]KÝ[KYHX][ÛJ
-H
-L
-È	ÝÉÎÂÛÛ]KÝ[KÜH	ËL	ÎÂÛÛ]KÝ[KXÚÙÜÝ[HÛÛÜÖÓX]ÛÜX][ÛJ
-H
-ÛÛÜË[ÝNÂÛÛ]KÝ[KÚYH
+          const duration = 2 + Math.random() * 2;
+          const sway = (Math.random() - 0.5) * 200;
+          
+          confetti.animate([
+            { transform: `translate(0, 0) rotate(0deg)`, opacity: 1 },
+            { transform: `translate(${sway}px, 100vh) rotate(720deg)`, opacity: 0.8 }
+          ], {
+            duration: duration * 1000,
+            easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            fill: 'forwards'
+          }).onfinish = () => confetti.remove();
+        }, i * 30);
+      }
+    }
 
-
-ÈX][ÛJ
-H
-
-H
-È	Ü	ÎÂÛÛ]KÝ[KZYÚH
+    function clearConfetti() {
+      document.querySelectorAll('.confetti').forEach(c => c.remove());
+    }
 
-
-ÈX][ÛJ
-H
-
-H
-È	Ü	ÎÂÛÛ]KÝ[KÜ\Y]\ÈHX][ÛJ
-HHÈ	ÍL	IÈ	Ì	ÎÂÛÛ]KÝ[K[ÙÜHHÝ]J	ÓX][ÛJ
-H
-ÍYYÊXÂØÝ[Y[ÙK\[Ú[
-ÛÛ]JNÂÛÛÝ\][ÛH
-ÈX][ÛJ
-H
-ÂÛÛÝÝØ^HH
-X][ÛJ
-HHJH
-ÂÛÛ]K[[X]JÂÈ[ÙÜN[Û]J
-HÝ]JYÊXÜXÚ]NHKÈ[ÙÜN[Û]J	ÜÝØ^_\L
-HÝ]J
-ÌYÊXÜXÚ]NBKÂ\][Û\][Û
-LX\Ú[Î	ØÝXXËX^Y\K
-
-KM
-IË[	ÙÜØ\ÉÂJKÛ[\ÚH
+    // ==================== 拖狽功能 ====================
+    function handleDragStart(e, row, col, ballEl) {
+      if (gameWon) return;
+      e.preventDefault();
 
-HOÛÛ]K[[ÝJ
-NÂKH
-Ì
-NÂBB[Ý[ÛÛX\ÛÛ]J
-HÂØÝ[Y[]Y\TÙ[XÝÜ[
-	ËÛÛ]IÊKÜXXÚ
-ÈOË[[ÝJ
-JNÂBËÈOOOOOOOOOOOOOOOOOOOH9¢å¹¢ïyb§ú ïHOOOOOOOOOOOOOOOOOOOB[Ý[Û[QYÔÝ\
-KÝËÛÛ[[
-HÂY
-Ø[YUÛÛH]\ÂK][Y][
+      isDragging = true;
+      dragBall = ballEl;
+      dragBall.classList.add('dragging');
 
-NÂ\ÑYÙÚ[ÈHYNÂYÐ[H[[ÂYÐ[Û\ÜÓ\ÝY
-	ÙYÙÚ[ÉÊNÂËÈ:+¬9oez-mùiâù/cyïkÛÛÝÝXÚHKÝXÚ\ÈÈKÝXÚ\ÖÌHNÂÛÛÝXÝH[[Ù]Ý[[ÐÛY[XÝ
+      // 记录起始位置
+      const touch = e.touches ? e.touches[0] : e;
+      const rect = ballEl.getBoundingClientRect();
+      dragStartPos = { x: rect.left, y: rect.top };
+      dragOffset = {
+        x: touch.clientX - rect.left - rect.width / 2,
+        y: touch.clientY - rect.top - rect.height / 2
+      };
 
-NÂYÔÝ\ÜÈHÈXÝYNXÝÜNÂYÓÙÙ]HÂÝXÚÛY[HXÝYHXÝÚYÈNÝXÚÛY[HHXÝÜHXÝZYÚÈNÂËÈ9fî¹k¦¹/cyïkYÐ[Ý[KÜÚ][ÛH	Ù^Y	ÎÂYÐ[Ý[KYHXÝY
-È	Ü	ÎÂYÐ[Ý[KÜHXÝÜ
-È	Ü	ÎÂYÐ[Ý[K[^H	ÌL	ÎÂYÐ[Ý[KÚ[\][ÈH	ÛÛIÎÂB[Ý[Û[QYÓ[ÝJJHÂY
-Z\ÑYÙÚ[ÈYYÐ[
-H]\ÂK][Y][
+      // 固定位置
+      dragBall.style.position = 'fixed';
+      dragBall.style.left = rect.left + 'px';
+      dragBall.style.top = rect.top + 'px';
+      dragBall.style.zIndex = '100';
+      dragBall.style.pointerEvents = 'none';
+    }
 
-NÂÛÛÝÝXÚHKÝXÚ\ÈÈKÝXÚ\ÖÌHNÂÛÛÝHÝXÚÛY[HYÓÙÙ]HÍNÈËÈ9ä ùcb¹o¡ÛÛÝHHÝXÚÛY[HHYÓÙÙ]HHÍNÂYÐ[Ý[KYH
-È	Ü	ÎÂYÐ[Ý[KÜHH
-È	Ü	ÎÂËÈ9¨à9­bù «9`g9æ¡9¨/9kdÛÛÝÙ[ÈHÜY[]Y\TÙ[XÝÜ[
-	ËÙ[	ÊNÂÙ[ËÜXXÚ
-Ù[OÙ[Û\ÜÓ\Ý[[ÝJ	ÙYË[Ý\ÊJNÂÛÛÝÙ[[ÝÈHÙ]Ù[]Ú[
-ÝXÚÛY[ÝXÚÛY[JNÂY
-Ù[[ÝÊHÂÙ[[ÝËÛ\ÜÓ\ÝY
-	ÙYË[Ý\ÊNÂBB[Ý[Û[QYÑ[
-JHÂY
-Z\ÑYÙÚ[ÈYYÐ[
-H]\ÂÛÛÝÝXÚHKÚ[ÙYÝXÚ\ÈÈKÚ[ÙYÝXÚ\ÖÌHNÂÛÛÝ\Ù]Ù[HÙ]Ù[]Ú[
-ÝXÚÛY[ÝXÚÛY[JNÂÛÛÝÛTÝÈH\ÙR[
-YÐ[]\Ù]ÝÊNÂÛÛÝÛPÛÛH\ÙR[
-YÐ[]\Ù]ÛÛ
-NÂËÈ9 h¹i#yä ùæ¡9¨-ùo#ÂYÐ[Û\ÜÓ\Ý[[ÝJ	ÙYÙÚ[ÉÊNÂYÐ[Ý[KÜÚ][ÛH	ÉÎÂYÐ[Ý[KYH	ÉÎÂYÐ[Ý[KÜH	ÉÎÂYÐ[Ý[K[^H	ÉÎÂYÐ[Ý[KÚ[\][ÈH	ÉÎÂÛÛÝÙ[ÈHÜY[]Y\TÙ[XÝÜ[
-	ËÙ[	ÊNÂÙ[ËÜXXÚ
-Ù[OÙ[Û\ÜÓ\Ý[[ÝJ	ÙYË[Ý\ÊJNÂ\ÑYÙÚ[ÈH[ÙNÂY
-\Ù]Ù[
-HÂÛÛÝÔÝÈH\ÙR[
-\Ù]Ù[]\Ù]ÝÊNÂÛÛÝÐÛÛH\ÙR[
-\Ù]Ù[]\Ù]ÛÛ
-NÂY
-ÛTÝÈOOHÔÝÈÛPÛÛOOHÐÛÛ
-HÂËÈ9.#yd#9¨/9kd;ï#9.©9£hÝØ\[ÊÛTÝËÛPÛÛÔÝËÐÛÛ
-NÂYÐ[H[Â]\ÂBBËÈ9¬¨y§"y¢å¹b,9§"y¥b9¨/9kd;ï#9ë¥ùà®yaîÂYÐ[H[Â[PÙ[ÛXÚÊÛTÝËÛPÛÛ
-NÂB[Ý[ÛÙ]Ù[]Ú[
-JHÂÛÛÝÙ[ÈHÜY[]Y\TÙ[XÝÜ[
-	ËÙ[	ÊNÂÜ
-ÛÛÝÙ[ÙÙ[ÊHÂÛÛÝXÝHÙ[Ù]Ý[[ÐÛY[XÝ
+    function handleDragMove(e) {
+      if (!isDragging || !dragBall) return;
+      e.preventDefault();
 
-NÂY
-HXÝY	HXÝYÚ	HHXÝÜ	HHXÝÝÛJHÂ]\Ù[ÂBB]\[ÂBËÈOOOOOOOOOOOOOOOOOOOH:gìù¥bOOOOOOOOOOOOOOOOOOOB[Ý[Û^TÛÝ[
-\JHÂY
-\Ù][ÜËÛÝ[ÛH]\ÂHÂY
-X]Y[ÐÝ
-HÂ]Y[ÐÝH]È
-Ú[ÝË]Y[ÐÛÛ^Ú[ÝËÙXÚ]]Y[ÐÛÛ^
-J
-NÂBÛÛÝÝÈH]Y[ÐÝÝ\[[YNÂY
-\HOOH	ØÛXÚÉÊHÂÛÛÝÜØÈH]Y[ÐÝÜX]SÜØÚ[]Ü
-NÂÛÛÝØZ[H]Y[ÐÝÜX]QØZ[
-NÂÜØË\]Y[ÞK[YHH
-ÂÜØË\HH	ÜÚ[IÎÂØZ[ØZ[Ù][YP][YJÝÊNÂØZ[ØZ[^Û[X[[\Õ[YP][YJKÝÈ
-È
-NÂÜØËÛÛXÝ
-ØZ[NÂØZ[ÛÛXÝ
-]Y[ÐÝ\Ý[][ÛNÂÜØËÝ\
-ÝÊNÂÜØËÝÜ
-ÝÈ
-È
-NÂH[ÙHY
-\HOOH	ÜÝØ\	ÊHÂÛÛÝÜØÈH]Y[ÐÝÜX]SÜØÚ[]Ü
-NÂÛÛÝØZ[H]Y[ÐÝÜX]QØZ[
-NÂÜØË\]Y[ÞKÙ][YP][YJ
-ÝÊNÂÜØË\]Y[ÞK^Û[X[[\Õ[YP][YJ
-ÌÝÈ
-ÈMJNÂÜØË\HH	ÜÚ[IÎÂØZ[ØZ[Ù][YP][YJKÝÊNÂØZ[ØZ[^Û[X[[\Õ[YP][YJKÝÈ
-ÈNÂÜØËÛÛXÝ
-ØZ[NÂØZ[ÛÛXÝ
-]Y[ÐÝ\Ý[][ÛNÂÜØËÝ\
-ÝÊNÂÜØËÝÜ
-ÝÈ
-ÈNÂH[ÙHY
-\HOOH	ÝXÝÜIÊHÂËÈ: ç9b*zgìù¥bH9."¹caúgìù¦-ÛÛÝÝ\ÈHÍLË
-NK
-Î
-L
+      const touch = e.touches ? e.touches[0] : e;
+      const x = touch.clientX - dragOffset.x - 35; // 球半径
+      const y = touch.clientY - dragOffset.y - 35;
 
-×NÂÝ\ËÜXXÚ
+      dragBall.style.left = x + 'px';
+      dragBall.style.top = y + 'px';
 
-\KJHOÂÛÛÝÜØÈH]Y[ÐÝÜX]SÜØÚ[]Ü
-NÂÛÛÝØZ[H]Y[ÐÝÜX]QØZ[
-NÂÜØË\]Y[ÞK[YHH\NÂÜØË\HH	ÜÚ[IÎÂÛÛÝHÝÈ
-ÈH
-LÂØZ[ØZ[Ù][YP][YJ
-NÂØZ[ØZ[[X\[\Õ[YP][YJË
-ÈNÂØZ[ØZ[^Û[X[[\Õ[YP][YJK
-ÈÊNÂÜØËÛÛXÝ
-ØZ[NÂØZ[ÛÛXÝ
-]Y[ÐÝ\Ý[][ÛNÂÜØËÝ\
-
-NÂÜØËÝÜ
-
-ÈÊNÂJNÂBHØ]Ú
-JHÂËÈ9¯ìùåizgìù¥b:e'zúïÂBBËÈOOOOOOOOOOOOOOOOOOH9.¢ù.í¹îäyk¦OOOOOOOOOOOOOOOOOOOB[Ý[ÛÙ]\][Ê
-HÂËÈ:aãyo 9£"zd«\Ý\Y][\Ý[\	ØÛXÚÉË
+      // 检测悬停的格子
+      const cells = gridEl.querySelectorAll('.cell');
+      cells.forEach(cell => cell.classList.remove('drag-over'));
 
-HOÂ\Ý\Û\ÜÓ\Ý[[ÝJ	ÜÜ[[ÉÊNÂÚY\Ý\ÙÙ]ÚYÈËÈ:)é¹cäzaãyîæ\Ý\Û\ÜÓ\ÝY
-	ÜÜ[[ÉÊNÂ^TÛÝ[
-	ØÛXÚÉÊNÂÙ][Y[Ý]
-]ÑØ[YKÌ
-NÂJNÂËÈ: ç9b*yo.yê¥ùa£y§iy. 9l`^PYØZ[Y][\Ý[\	ØÛXÚÉË
+      const cellBelow = getCellAtPoint(touch.clientX, touch.clientY);
+      if (cellBelow) {
+        cellBelow.classList.add('drag-over');
+      }
+    }
 
-HOÂ^TÛÝ[
-	ØÛXÚÉÊNÂ]ÑØ[YJ
-NÂJNÂËÈ:+¯¹ïk¹£"zd«Ù][ÜÐY][\Ý[\	ØÛXÚÉË
+    function handleDragEnd(e) {
+      if (!isDragging || !dragBall) return;
 
-HOÂ^TÛÝ[
-	ØÛXÚÉÊNÂÙ][ÜÓÝ\^KÛ\ÜÓ\ÝY
-	ÜÚÝÉÊNÂJNÂËÈ9alúeëz+¯¹ïkÛÜÙTÙ][ÜÐY][\Ý[\	ØÛXÚÉË
+      const touch = e.changedTouches ? e.changedTouches[0] : e;
+      const targetCell = getCellAtPoint(touch.clientX, touch.clientY);
 
-HOÂ^TÛÝ[
-	ØÛXÚÉÊNÂÙ][ÜÓÝ\^KÛ\ÜÓ\Ý[[ÝJ	ÌÚÝÉÊNÂ]ÑØ[YJ
-NÈËÈ9n¥9å*9¥¬:+¯¹ïkºaãy¥¬9o 9l`JNÂËÈ9à®yaîú`k¹ïjyalúeëz+¯¹ïkÙ][ÜÓÝ\^KY][\Ý[\	ØÛXÚÉË
-JHOÂY
-K\Ù]OOHÙ][ÜÓÝ\^JHÂÙ][ÜÓÝ\^KÛ\ÜÓ\Ý[[ÝJ	ÜÚÝÉÊNÂBJNÂËÈ9£ä9é.¹o 9alÂ[ÙÙÛKY][\Ý[\	ØÛXÚÉË
+      const fromRow = parseInt(dragBall.dataset.row);
+      const fromCol = parseInt(dragBall.dataset.col);
 
-HOÂÙ][ÜËÚÝÒ[H\Ù][ÜËÚÝÒ[Â[ÙÙÛKÛ\ÜÓ\ÝÙÙÛJ	ÛÛËÙ][ÜËÚÝÒ[
-NÂ[]Y]Ñ[Ý[K\Ü^HHÙ][ÜËÚÝÒ[È	Ù^	È	ÛÛIÎÂØ]TÙ][ÜÊ
-NÂ^TÛÝ[
-	ØÛXÚÉÊNÂJNÂËÈ:gìù¥b9o 9alÂÛÝ[ÙÙÛKY][\Ý[\	ØÛXÚÉË
+      // 恢复球的样式
+      dragBall.classList.remove('dragging');
+      dragBall.style.position = '';
+      dragBall.style.left = '';
+      dragBall.style.top = '';
+      dragBall.style.zIndex = '';
+      dragBall.style.pointerEvents = '';
 
-HOÂÙ][ÜËÛÝ[ÛH\Ù][ÜËÛÝ[ÛÂÛÝ[ÙÙÛKÛ\ÜÓ\ÝÙÙÛJ	ÛÛËÙ][ÜËÛÝ[ÛNÂØ]TÙ][ÜÊ
-NÂY
-Ù][ÜËÛÝ[ÛH^TÛÝ[
-	ØÛXÚÉÊNÂJNÂËÈ:h§:"l¹¥l:aãÂÛÛÜÜ[ÛË]Y\TÙ[XÝÜ[
-	ËÜ[ÛXÊKÜXXÚ
-OÂY][\Ý[\	ØÛXÚÉË
+      const cells = gridEl.querySelectorAll('.cell');
+      cells.forEach(cell => cell.classList.remove('drag-over'));
 
-HOÂÙ][ÜËÛÛÜÛÝ[H\ÙR[
-]\Ù]ÛÛÜÊNÂÛÛÜÜ[ÛË]Y\TÙ[XÝÜ[
-	ËÜ[ÛXÊKÜXXÚ
-OÛ\ÜÓ\Ý[[ÝJ	ØXÝ]IÊJNÂÛ\ÜÓ\ÝY
-	ØXÝ]IÊNÂØ]TÙ][ÜÊ
-NÂ^TÛÝ[
-	ØÛXÚÉÊNÂJNÂJNÂËÈ: ç9b*y§hy.íÚ[Ü[ÛË]Y\TÙ[XÝÜ[
-	ËÜ[ÛXÊKÜXXÚ
-OÂY][\Ý[\	ØÛXÚÉË
+      isDragging = false;
 
-HOÂÙ][ÜËÚ[ÛÛ][ÛH]\Ù]Ú[ÂÚ[Ü[ÛË]Y\TÙ[XÝÜ[
-	ËÜ[ÛXÊKÜXXÚ
-OÛ\ÜÓ\Ý[[ÝJ	ØXÝ]IÊJNÂÛ\ÜÓ\ÝY
-	ØXÝ]IÊNÂØ]TÙ][ÜÊ
-NÂ^TÛÝ[
-	ØÛXÚÉÊNÂJNÂJNÂËÈ9¨/9kd9.¢ù.í»ï"9iå9¢f;ï"BÜY[Y][\Ý[\	Û[Ý\ÙYÝÛË[QÜYÚ[\ÝÛNÂÜY[Y][\Ý[\	ÝÝXÚÝ\	Ë[QÜYÚ[\ÝÛÈ\ÜÚ]N[ÙHJNÂØÝ[Y[Y][\Ý[\	Û[Ý\Ù[[ÝIË[QYÓ[ÝJNÂØÝ[Y[Y][\Ý[\	ÝÝXÚ[ÝIË[QYÓ[ÝKÈ\ÜÚ]N[ÙHJNÂØÝ[Y[Y][\Ý[\	Û[Ý\Ù]\	Ë[QYÑ[
-NÂØÝ[Y[Y][\Ý[\	ÝÝXÚ[	Ë[QYÑ[
-NÂB[Ý[Û[QÜYÚ[\ÝÛJHÂÛÛÝ[HK\Ù]ÛÜÙ\Ý
-	Ë[	ÊNÂY
-X[
-H]\ÂÛÛÝÝÈH\ÙR[
-[]\Ù]ÝÊNÂÛÛÝÛÛH\ÙR[
-[]\Ù]ÛÛ
-NÂËÈ9b)9¥«y¦+ùà®yaîú/æ9¦+ù¢å¹¢ïHH9å*9éîùbª:-çyé®ùc.¹b!ËÈ9ab:+¬9oez-mùiâù/cyïk»ï#[Ýy¥í¹b)9¥«y¦+ùd)º-¡z/áúf"9`/ÛÛÝÝ\HKÝXÚ\ÈÈKÝXÚ\ÖÌKÛY[KÛY[ÂÛÛÝÝ\HHKÝXÚ\ÈÈKÝXÚ\ÖÌKÛY[HKÛY[NÂ][ÝYH[ÙNÂ]YÔÝ\YH[ÙNÂ[Ý[ÛÛ[ÝJ]HÂY
-YÔÝ\Y
-H]\ÂÛÛÝ^H]ÝXÚ\ÈÈ]ÝXÚ\ÖÌKÛY[]ÛY[ÂÛÛÝ^HH]ÝXÚ\ÈÈ]ÝXÚ\ÖÌKÛY[H]ÛY[NÂÛÛÝ\ÝHX]Ü\
+      if (targetCell) {
+        const toRow = parseInt(targetCell.dataset.row);
+        const toCol = parseInt(targetCell.dataset.col);
 
-^HÝ\
-H
-
-È
-^HHÝ\JH
-NÂY
-\Ý	[[ÝY
-HÂ[ÝYHYNÂYÔÝ\YHYNÂ[QYÔÝ\
-KÝËÛÛ[
-NÂËÈ9éîúfi9. 9«(y )ùæäyd+
+        if (fromRow !== toRow || fromCol !== toCol) {
+          // 不同格子，交换
+          swapBalls(fromRow, fromCol, toRow, toCol);
+          dragBall = null;
+          return;
+        }
+      }
+
+      // 没有拖到有效格子，算点击
+      dragBall = null;
+      handleCellClick(fromRow, fromCol);
+    }
+
+    function getCellAtPoint(x, y) {
+      const cells = gridEl.querySelectorAll('.cell');
+      for (const cell of cells) {
+        const rect = cell.getBoundingClientRect();
+        if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+          return cell;
+        }
+      }
+      return null;
+    }
+
+    // ==================== 音效 ====================
+    function playSound(type) {
+      if (!settings.soundOn) return;
+
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        const now = audioCtx.currentTime;
+
+        if (type === 'click') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.frequency.value = 600;
+          osc.type = 'sine';
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        } else if (type === 'swap') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.frequency.setValueAtTime(400, now);
+          osc.frequency.exponentialRampToValueAtTime(700, now + 0.15);
+          osc.type = 'sine';
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtime(0.01, now + 0.2);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.2);
+        } else if (type === 'victory') {
+          // 胜利陳效 - 为��音昶
+          const notes = [523, 659, 784, 1047];
+          notes.forEach((freq, i) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.frequency.value = freq;
+            osc.type = 'sine';
+            const t = now + i * 0.12;
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(0.3, t + 0.02);
+            gain.gain.exponentialRampToValueAtime(0.01, t + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(t);
+            osc.stop(t + 0.3);
+          });
+        }
+      } catch (e) {
+        // 忽略音效错误
+      }
+    }
+
+    // =================== 事件绑定 ====================
+    function setupEvents() {
+      // 重开按钮
+      restartBtn.addEventListener('click', () => {
+        restartBtn.classList.remove('spinning');
+        void restartBtn.offsetWidth; // 触发重绘
+        restartBtn.classList.add('spinning');
+        playSound('click');
+        setTimeout(newGame, 300);
+      });
+
+      // 胜利弹窗再来一局
+      playAgainBtn.addEventListener('click', () => {
+        playSound('click');
+        newGame();
+      });
+
+      // 设置按钮
+      settingsBtn.addEventListener('click', () => {
+        playSound('click');
+        settingsOverlay.classList.add('show');
+      });
+
+      // 关闭设置
+      closeSettingsBtn.addEventListener('click', () => {
+        playSound('click');
+        settingsOverlay.classList.remove('show');
+        newGame(); // 应用新设置重新开局
+      });
+
+      // 点击遮罩关闭设置
+      settingsOverlay.addEventListener('click', (e) => {
+        if (e.target === settingsOverlay) {
+          settingsOverlay.classList.remove('show');
+        }
+      });
+
+      // 提示开关
+      hintToggle.addEventListener('click', () => {
+        settings.showHint = !settings.showHint;
+        hintToggle.classList.toggle('on', settings.showHint);
+        hintPreviewEl.style.display = settings.showHint ? 'flex' : 'none';
+        saveSettings();
+        playSound('click');
+      });
+
+      // 音效开关
+      soundToggle.addEventListener('click', () => {
+        settings.soundOn = !settings.soundOn;
+        soundToggle.classList.toggle('on', settings.soundOn);
+        saveSettings();
+        if (settings.soundOn) playSound('click');
+      });
+
+      // 颜色数量
+      colorOptions.querySelectorAll('.option-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          settings.colorCount = parseInt(btn.dataset.colors);
+          colorOptions.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          saveSettings();
+          playSound('click');
+        });
+      });
+
+      // 胜利条件
+      winOptions.querySelectorAll('.option-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          settings.winCondition = btn.dataset.win;
+          winOptions.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          saveSettings();
+          playSound('click');
+        });
+      });
+
+      // 格子事件（委托）
+      gridEl.addEventListener('mousedown', handleGridPointerDown);
+      gridEl.addEventListener('touchstart', handleGridPointerDown, { passive: false });
+
+      document.addEventListener('mousemove', handleDragMove);
+      document.addEventListener('touchmove', handleDragMove, { passive: false });
+
+      document.addEventListener('mouseup', handleDragEnd);
+      document.addEventListener('touchend', handleDragEnd);
+    }
+
+    function handleGridPointerDown(e) {
+      const ball = e.target.closest('.ball');
+      if (!ball) return;
+
+      const row = parseInt(ball.dataset.row);
+      const col = parseInt(ball.dataset.col);
+
+      // 判断是点击还是拖拽 - 用移动距离区分
+      // 先记录起始位置，move时判断是否超过阈值
+      const startX = e.touches ? e.touches[0].clientX : e.clientX;
+      const startY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      let moved = false;
+      let dragStarted = false;
+
+      function onMove(ev) {
+        if (dragStarted) return;
+        const mx = ev.touches ? ev.touches[0].clientX : ev.clientX;
+        const my = ev.touches ? ev.touches[0].clientY : ev.clientY;
+        const dist = Math.sqrt((mx - startX) ** 2 + (my - startY) ** 2);
+        
+        if (dist > 8 && !moved) {
+          moved = true;
+          dragStarted = true;
+          handleDragStart(e, row, col, ball);
+          // 移除一次性监听
           document.removeEventListener('mousemove', onMove);
-          document.removeEventListener('touchmove', omMove);
+          document.removeEventListener('touchmove', onMove);
         }
       }
 
       function onUp() {
-        document.removeEventListener('mousemove', omMove);
+        document.removeEventListener('mousemove', onMove);
         document.removeEventListener('touchmove', onMove);
         document.removeEventListener('mouseup', onUp);
         document.removeEventListener('touchend', onUp);
 
         if (!moved && !dragStarted) {
-          // çº¯ç¹å»
+          // 纯点击
           handleCellClick(row, col);
         }
       }
 
-      document.addEventListener('mousemove', omMove);
-      document.addEventListener('touchmove', omMove, { passive: false });
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('touchmove', onMove, { passive: false });
       document.addEventListener('mouseup', onUp);
-      document.addEventListener('touchend', onUp);
+      document.addEventListenr('touchend', onUp);
     }
 
-    // ==================== å¯å¨ ====================
+    // =================== 二炨 ====================
     init();
   </script>
 </body>
 </html>
-
-<!-- deployed via github pages -->
