@@ -951,11 +951,20 @@
 
       isDragging = true;
       dragBall = ballEl;
+      
+      // 记录原始尺寸（用像素固定大小，防止 position:fixed 时百分比宽度失效）
+      const rect = ballEl.getBoundingClientRect();
+      const origWidth = rect.width;
+      const origHeight = rect.height;
+      
       dragBall.classList.add('dragging');
+      
+      // 用像素固定尺寸，避免 position: fixed 后百分比宽度相对于视口导致球变大
+      dragBall.style.width = origWidth + 'px';
+      dragBall.style.height = origHeight + 'px';
 
       // 记录起始位置
       const touch = e.touches ? e.touches[0] : e;
-      const rect = ballEl.getBoundingClientRect();
       dragStartPos = { x: rect.left, y: rect.top };
       dragOffset = {
         x: touch.clientX - rect.left - rect.width / 2,
@@ -1008,6 +1017,8 @@
       dragBall.style.top = '';
       dragBall.style.zIndex = '';
       dragBall.style.pointerEvents = '';
+      dragBall.style.width = '';
+      dragBall.style.height = '';
 
       const cells = gridEl.querySelectorAll('.cell');
       cells.forEach(cell => cell.classList.remove('drag-over'));
