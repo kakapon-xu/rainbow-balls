@@ -5,233 +5,72 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>彩虹球球</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-      -webkit-user-select: none;
-      user-select: none;
-    }
-
-    html, body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      touch-action: none;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
+    html, body { width: 100%; height: 100%; overflow: hidden; touch-action: none; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
       background: linear-gradient(180deg, #87CEEB 0%, #B0E0E6 50%, #E0F4FF 100%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
     }
-
-    /* 顶部区域 */
-    .top-bar {
-      width: 100%;
-      max-width: 400px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
+    .top-bar { width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .icon-btn {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.8);
-      border: none;
-      font-size: 22px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      transition: transform 0.15s, box-shadow 0.15s;
+      width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,0.8); border: none; font-size: 22px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.15s, box-shadow 0.15s;
     }
-
-    .icon-btn:active {
-      transform: scale(0.92);
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    /* 目标提示 */
+    .icon-btn:active { transform: scale(0.92); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
     .hint-preview {
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 16px;
-      padding: 10px 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      background: rgba(255,255,255,0.9); border-radius: 16px; padding: 10px 16px;
+      display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
-
-    .hint-preview .label {
-      font-size: 13px;
-      color: #666;
-      font-weight: 600;
-    }
-
-    .hint-grid {
-      display: grid;
-      grid-auto-columns: 18px;
-      grid-auto-rows: 18px;
-      gap: 3px;
-    }
-
-    .hint-cell {
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-    }
-
-    /* 游戏主区域 */
+    .hint-preview .label { font-size: 13px; color: #666; font-weight: 600; }
+    .hint-grid { display: grid; grid-auto-columns: 18px; grid-auto-rows: 18px; gap: 3px; }
+    .hint-cell { width: 18px; height: 18px; border-radius: 50%; }
     .game-container {
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 28px;
-      padding: 20px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-      position: relative;
+      background: rgba(255,255,255,0.9); border-radius: 28px; padding: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12); position: relative;
     }
-
-    .grid {
-      display: grid;
-      grid-auto-columns: 1fr;
-      grid-auto-rows: 1fr;
-      gap: 12px;
-    }
-
+    .grid { display: grid; grid-auto-columns: 1fr; grid-auto-rows: 1fr; gap: 12px; }
     .cell {
-      aspect-ratio: 1;
-      min-width: 60px;
-      min-height: 60px;
-      background: rgba(240, 248, 255, 0.8);
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      transition: background 0.2s;
+      aspect-ratio: 1; min-width: 60px; min-height: 60px; background: rgba(240,248,255,0.8);
+      border-radius: 20px; display: flex; align-items: center; justify-content: center;
+      position: relative; transition: background 0.2s;
     }
-
-    .cell.drag-over {
-      background: rgba(255, 230, 150, 0.6);
-    }
-
+    .cell.drag-over { background: rgba(255,230,150,0.6); }
     .cell.selected::after {
-      content: '';
-      position: absolute;
-      inset: -4px;
-      border-radius: 24px;
-      border: 4px solid #FFD700;
-      animation: pulse 0.8s ease-in-out infinite;
-      pointer-events: none;
+      content: ''; position: absolute; inset: -4px; border-radius: 24px;
+      border: 4px solid #FFD700; animation: pulse 0.8s ease-in-out infinite; pointer-events: none;
     }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.6; transform: scale(1.03); }
-    }
-
-    /* 球 */
+    @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.03); } }
     .ball {
-      width: 78%;
-      height: 78%;
-      border-radius: 50%;
-      cursor: pointer;
-      position: relative;
-      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-      box-shadow: 
-        inset -8px -8px 16px rgba(0, 0, 0, 0.15),
-        inset 4px 4px 8px rgba(255, 255, 255, 0.5),
-        0 4px 12px rgba(0, 0, 0, 0.15);
+      width: 78%; height: 78%; border-radius: 50%; cursor: pointer; position: relative;
+      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+      box-shadow: inset -8px -8px 16px rgba(0,0,0,0.15), inset 4px 4px 8px rgba(255,255,255,0.5), 0 4px 12px rgba(0,0,0,0.15);
     }
-
     .ball::before {
-      content: '';
-      position: absolute;
-      top: 15%;
-      left: 20%;
-      width: 25%;
-      height: 18%;
-      background: rgba(255, 255, 255, 0.6);
-      border-radius: 50%;
-      transform: rotate(-30deg);
-      filter: blur(2px);
+      content: ''; position: absolute; top: 15%; left: 20%; width: 25%; height: 18%;
+      background: rgba(255,255,255,0.6); border-radius: 50%; transform: rotate(-30deg); filter: blur(2px);
     }
-
     .ball.dragging {
-      transform: scale(1.15);
-      z-index: 100;
-      box-shadow: 
-        inset -8px -8px 16px rgba(0, 0, 0, 0.15),
-        inset 4px 4px 8px rgba(255, 255, 255, 0.5),
-        0 8px 24px rgba(0, 0, 0, 0.25);
+      transform: scale(1.15); z-index: 100;
+      box-shadow: inset -8px -8px 16px rgba(0,0,0,0.15), inset 4px 4px 8px rgba(255,255,255,0.5), 0 8px 24px rgba(0,0,0,0.25);
       transition: none;
     }
-
-    .ball.swapping {
-      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    /* 球颜色 */
-    .ball.red {
-      background: linear-gradient(145deg, #ff7676, #e64545);
-    }
-    .ball.yellow {
-      background: linear-gradient(145deg, #ffe566, #ffc42c);
-    }
-    .ball.blue {
-      background: linear-gradient(145deg, #6cb8ff, #3a8ee6);
-    }
-    .ball.green {
-      background: linear-gradient(145deg, #7be495, #4caf50);
-    }
-    .ball.purple {
-      background: linear-gradient(145deg, #c792ea, #9c64d1);
-    }
-
-    /* 底部重开按钮 */
-    .bottom-bar {
-      margin-top: 24px;
-      display: flex;
-      justify-content: center;
-    }
-
+    .ball.swapping { transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+    .ball.red { background: linear-gradient(145deg, #ff7676, #e64545); }
+    .ball.yellow { background: linear-gradient(145deg, #ffe566, #ffc42c); }
+    .ball.blue { background: linear-gradient(145deg, #6cb8ff, #3a8ee6); }
+    .ball.green { background: linear-gradient(145deg, #7be495, #4caf50); }
+    .ball.purple { background: linear-gradient(145deg, #c792ea, #9c64d1); }
+    .bottom-bar { margin-top: 24px; display: flex; justify-content: center; }
     .restart-btn {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.9);
-      border: none;
-      font-size: 28px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-      transition: transform 0.2s, box-shadow 0.2s;
+      width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,0.9); border: none; font-size: 28px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12); transition: transform 0.2s, box-shadow 0.2s;
     }
-
-    .restart-btn:active {
-      transform: scale(0.9);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-    }
-
-    .restart-btn.spinning {
-      animation: spin 0.6s ease-in-out;
-    }
-
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
+    .restart-btn:active { transform: scale(0.9); box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+    .restart-btn.spinning { animation: spin 0.6s ease-in-out; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
     /* 胜利遮罩 */
     .victory-overlay {
@@ -247,38 +86,22 @@
       pointer-events: none;
       transition: opacity 0.3s;
     }
-
-    .victory-overlay.show {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
+    .victory-overlay.show { opacity: 1; pointer-events: auto; }
     .victory-content {
       text-align: center;
       transform: scale(0.5);
       transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-
-    .victory-overlay.show .victory-content {
-      transform: scale(1);
-    }
-
+    .victory-overlay.show .victory-content { transform: scale(1); }
     .victory-text {
       font-size: 56px;
       font-weight: 900;
       color: #fff;
-      text-shadow: 
-        0 0 20px rgba(255, 215, 0, 0.8),
-        0 4px 8px rgba(0, 0, 0, 0.3);
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 4px 8px rgba(0, 0, 0, 0.3);
       margin-bottom: 30px;
       animation: bounce 0.6s ease-in-out infinite alternate;
     }
-
-    @keyframes bounce {
-      from { transform: translateY(0); }
-      to { transform: translateY(-10px); }
-    }
-
+    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
     .play-again-btn {
       padding: 16px 40px;
       font-size: 22px;
@@ -291,26 +114,11 @@
       box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
       transition: transform 0.15s, box-shadow 0.15s;
     }
-
-    .play-again-btn:active {
-      transform: scale(0.95);
-      box-shadow: 0 3px 10px rgba(255, 107, 53, 0.4);
-    }
-
+    .play-again-btn:active { transform: scale(0.95); box-shadow: 0 3px 10px rgba(255, 107, 53, 0.4); }
     /* 撒花效果 */
-    .confetti {
-      position: fixed;
-      width: 10px;
-      height: 10px;
-      pointer-events: none;
-      z-index: 999;
-    }
-
+    .confetti { position: fixed; width: 10px; height: 10px; pointer-events: none; z-index: 999; }
     /* 胜利时小球跳动 */
-    .cell.victory .ball {
-      animation: victoryBounce 0.6s ease-in-out infinite alternate;
-    }
-
+    .cell.victory .ball { animation: victoryBounce 0.6s ease-in-out infinite alternate; }
     .cell.victory:nth-child(2) .ball { animation-delay: 0.1s; }
     .cell.victory:nth-child(3) .ball { animation-delay: 0.2s; }
     .cell.victory:nth-child(4) .ball { animation-delay: 0.15s; }
@@ -319,12 +127,7 @@
     .cell.victory:nth-child(7) .ball { animation-delay: 0.3s; }
     .cell.victory:nth-child(8) .ball { animation-delay: 0.1s; }
     .cell.victory:nth-child(9) .ball { animation-delay: 0.2s; }
-
-    @keyframes victoryBounce {
-      from { transform: translateY(0) scale(1); }
-      to { transform: translateY(-12px) scale(1.1); }
-    }
-
+    @keyframes victoryBounce { from { transform: translateY(0) scale(1); } to { transform: translateY(-12px) scale(1.1); } }
     /* 设置面板 */
     .settings-overlay {
       position: fixed;
@@ -338,12 +141,7 @@
       pointer-events: none;
       transition: opacity 0.3s;
     }
-
-    .settings-overlay.show {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
+    .settings-overlay.show { opacity: 1; pointer-events: auto; }
     .settings-panel {
       width: 100%;
       max-width: 420px;
@@ -355,11 +153,7 @@
       max-height: 80vh;
       overflow-y: auto;
     }
-
-    .settings-overlay.show .settings-panel {
-      transform: translateY(0);
-    }
-
+    .settings-overlay.show .settings-panel { transform: translateY(0); }
     .settings-title {
       font-size: 22px;
       font-weight: 700;
@@ -367,7 +161,6 @@
       margin-bottom: 20px;
       color: #333;
     }
-
     .setting-row {
       display: flex;
       justify-content: space-between;
@@ -375,113 +168,42 @@
       padding: 14px 0;
       border-bottom: 1px solid #f0f0f0;
     }
-
-    .setting-row:last-child {
-      border-bottom: none;
-    }
-
-    .setting-label {
-      font-size: 16px;
-      font-weight: 600;
-      color: #333;
-    }
-
-    .setting-desc {
-      font-size: 13px;
-      color: #999;
-      margin-top: 2px;
-    }
-
+    .setting-row:last-child { border-bottom: none; }
+    .setting-label { font-size: 16px; font-weight: 600; color: #333; }
+    .setting-desc { font-size: 13px; color: #999; margin-top: 2px; }
     /* 开关按钮 */
     .toggle {
-      width: 52px;
-      height: 30px;
-      background: #ddd;
-      border-radius: 15px;
-      position: relative;
-      cursor: pointer;
-      transition: background 0.25s;
-      flex-shrink: 0;
+      width: 52px; height: 30px; background: #ddd; border-radius: 15px;
+      position: relative; cursor: pointer; transition: background 0.25s; flex-shrink: 0;
     }
-
-    .toggle.on {
-      background: #4ecdc4;
-    }
-
+    .toggle.on { background: #4ecdc4; }
     .toggle::after {
-      content: '';
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 24px;
-      height: 24px;
-      background: #fff;
-      border-radius: 50%;
-      transition: transform 0.25s;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      content: ''; position: absolute; top: 3px; left: 3px;
+      width: 24px; height: 24px; background: #fff; border-radius: 50%;
+      transition: transform 0.25s; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
     }
-
-    .toggle.on::after {
-      transform: translateX(22px);
-    }
-
+    .toggle.on::after { transform: translateX(22px); }
     /* 选项组 */
-    .option-group {
-      display: flex;
-      gap: 8px;
-      flex-shrink: 0;
-    }
-
+    .option-group { display: flex; gap: 8px; flex-shrink: 0; }
     .option-btn {
-      padding: 6px 12px;
-      font-size: 14px;
-      font-weight: 600;
-      border: 2px solid #e0e0e0;
-      background: #fff;
-      border-radius: 20px;
-      cursor: pointer;
-      color: #666;
-      transition: all 0.2s;
+      padding: 6px 12px; font-size: 14px; font-weight: 600;
+      border: 2px solid #e0e0e0; background: #fff; border-radius: 20px;
+      cursor: pointer; color: #666; transition: all 0.2s;
     }
-
-    .option-btn.active {
-      border-color: #4ecdc4;
-      background: #e8f8f5;
-      color: #2a9d8f;
-    }
-
+    .option-btn.active { border-color: #4ecdc4; background: #e8f8f5; color: #2a9d8f; }
     .close-settings {
-      width: 100%;
-      margin-top: 20px;
-      padding: 14px;
-      font-size: 17px;
-      font-weight: 700;
-      color: #fff;
+      width: 100%; margin-top: 20px; padding: 14px; font-size: 17px;
+      font-weight: 700; color: #fff;
       background: linear-gradient(145deg, #667eea, #764ba2);
-      border: none;
-      border-radius: 50px;
-      cursor: pointer;
+      border: none; border-radius: 50px; cursor: pointer;
     }
-
-    .close-settings:active {
-      transform: scale(0.98);
-    }
-
+    .close-settings:active { transform: scale(0.98); }
     /* 响应式 */
     @media (max-width: 360px) {
-      .cell {
-        min-width: 50px;
-        min-height: 50px;
-      }
-      .grid {
-        gap: 8px;
-      }
-      .game-container {
-        padding: 12px;
-      }
-      .victory-text {
-        font-size: 44px;
-      }
+      .cell { min-width: 50px; min-height: 50px; }
+      .grid { gap: 8px; }
+      .game-container { padding: 12px; }
+      .victory-text { font-size: 44px; }
     }
   </style>
 </head>
@@ -500,12 +222,10 @@
     </div>
     <div style="width:48px"></div>
   </div>
-
   <!-- 游戏主区域 -->
   <div class="game-container">
     <div class="grid" id="grid"></div>
   </div>
-
   <!-- 底部重开 -->
   <div class="bottom-bar">
     <button class="restart-btn" id="restartBtn" title="重新开始">
@@ -515,7 +235,6 @@
       </svg>
     </button>
   </div>
-
   <!-- 胜利遮罩 -->
   <div class="victory-overlay" id="victoryOverlay">
     <div class="victory-content">
@@ -523,12 +242,10 @@
       <button class="play-again-btn" id="playAgainBtn">再来一局</button>
     </div>
   </div>
-
   <!-- 设置面板 -->
   <div class="settings-overlay" id="settingsOverlay">
     <div class="settings-panel">
       <div class="settings-title">游戏设置</div>
-      
       <div class="setting-row">
         <div>
           <div class="setting-label">颜色数量</div>
@@ -541,7 +258,6 @@
           <button class="option-btn" data-colors="5">5</button>
         </div>
       </div>
-
       <div class="setting-row">
         <div>
           <div class="setting-label">目标提示</div>
@@ -549,7 +265,6 @@
         </div>
         <div class="toggle on" id="hintToggle"></div>
       </div>
-
       <div class="setting-row">
         <div>
           <div class="setting-label">音效</div>
@@ -557,7 +272,6 @@
         </div>
         <div class="toggle on" id="soundToggle"></div>
       </div>
-
       <div class="setting-row">
         <div>
           <div class="setting-label">胜利条件</div>
@@ -569,7 +283,6 @@
           <button class="option-btn" data-win="both">都行</button>
         </div>
       </div>
-
       <button class="close-settings" id="closeSettingsBtn">开始游戏</button>
     </div>
   </div>
@@ -578,29 +291,25 @@
     // ==================== 游戏配置 ====================
     const COLORS = ['red', 'yellow', 'blue', 'green', 'purple'];
     const COLOR_NAMES = { red: '红', yellow: '黄', blue: '蓝', green: '绿', purple: '紫' };
-
-    // 默认设置
     let settings = {
       colorCount: 3,
       showHint: true,
       soundOn: true,
-      winCondition: 'rows' // rows, cols, both
+      winCondition: 'cols'
     };
-
-    // 游戏状态
-    let rows = 3; // 行数（固定3行）
-    let cols = 3; // 列数（=颜色数量）
-    let board = []; // 二维数组，存颜色索引
-    let targetBoard = []; // 目标布局
-    let selectedCell = null; // {row, col} 或 null
+    let rows = 3;
+    let cols = 3;
+    let board = [];
+    let targetBoard = [];
+    let selectedCell = null;
     let isDragging = false;
+    let isSwapping = false;
     let dragBall = null;
     let dragStartPos = { x: 0, y: 0 };
     let dragOffset = { x: 0, y: 0 };
     let gameWon = false;
     let audioCtx = null;
 
-    // ==================== DOM 元素 ====================
     const gridEl = document.getElementById('grid');
     const hintGridEl = document.getElementById('hintGrid');
     const hintPreviewEl = document.getElementById('hintPreview');
@@ -615,7 +324,6 @@
     const colorOptions = document.getElementById('colorOptions');
     const winOptions = document.getElementById('winOptions');
 
-    // ==================== 初始化 ====================
     function init() {
       loadSettings();
       applySettingsUI();
@@ -623,85 +331,58 @@
       setupEvents();
     }
 
-    // ==================== 设置存储 ====================
     function saveSettings() {
-      try {
-        localStorage.setItem('rainbowBallsSettings', JSON.stringify(settings));
-      } catch (e) {}
+      try { localStorage.setItem('rainbowBallsSettings', JSON.stringify(settings)); } catch (e) {}
     }
 
     function loadSettings() {
       try {
         const saved = localStorage.getItem('rainbowBallsSettings');
-        if (saved) {
-          settings = { ...settings, ...JSON.parse(saved) };
-        }
+        if (saved) { settings = { ...settings, ...JSON.parse(saved) }; }
       } catch (e) {}
     }
 
     function applySettingsUI() {
-      // 颜色数量
       colorOptions.querySelectorAll('.option-btn').forEach(btn => {
         btn.classList.toggle('active', parseInt(btn.dataset.colors) === settings.colorCount);
       });
-      // 提示开关
       hintToggle.classList.toggle('on', settings.showHint);
       hintPreviewEl.style.display = settings.showHint ? 'flex' : 'none';
-      // 音效开关
       soundToggle.classList.toggle('on', settings.soundOn);
-      // 胜利条件
       winOptions.querySelectorAll('.option-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.win === settings.winCondition);
       });
     }
 
-    // ==================== 生成新游戏 ====================
     function newGame() {
       gameWon = false;
       victoryOverlay.classList.remove('show');
       clearConfetti();
       selectedCell = null;
-
       const n = settings.colorCount;
-      cols = n; // 列数 = 颜色数量
-      rows = 3; // 行数固定为3
-      
-      // 设置grid列数
+      cols = n;
+      rows = 3;
       gridEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
       gridEl.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
       hintGridEl.style.gridTemplateColumns = `repeat(${cols}, 18px)`;
       hintGridEl.style.gridTemplateRows = `repeat(${rows}, 18px)`;
-      
-      // 1. 先生成目标布局（每行同色 / 每列同色）
+
+      // 1. 生成目标布局（每列同色，确保使用所有 n 种颜色）
       targetBoard = [];
       const colorIndices = [];
       for (let i = 0; i < n; i++) colorIndices.push(i);
-      
-      // 随机排列颜色到行/列
       const shuffled = shuffleArray([...colorIndices]);
-      
-      if (settings.winCondition === 'cols') {
-        // 每列同色
-        for (let r = 0; r < rows; r++) {
-          targetBoard[r] = [];
-          for (let c = 0; c < cols; c++) {
-            targetBoard[r][c] = shuffled[c % n];
-          }
-        }
-      } else {
-        // 每行同色（rows 或 both 都用行做目标）
-        for (let r = 0; r < rows; r++) {
-          targetBoard[r] = [];
-          for (let c = 0; c < cols; c++) {
-            targetBoard[r][c] = shuffled[r % n];
-          }
+      for (let r = 0; r < rows; r++) {
+        targetBoard[r] = [];
+        for (let c = 0; c < cols; c++) {
+          targetBoard[r][c] = shuffled[c % n];
         }
       }
 
-      // 2. 复制目标布局到当前棋盘
+      // 2. 复制到当前棋盘
       board = targetBoard.map(row => [...row]);
 
-      // 3. 随机交换打乱（保证有解）
+      // 3. 随机交换打乱
       const totalCells = rows * cols;
       const shuffleMoves = Math.floor(totalCells * 1.5) + Math.floor(Math.random() * totalCells);
       let lastSwap = null;
@@ -715,8 +396,8 @@
           c2 = Math.floor(Math.random() * cols);
           attempts++;
         } while (
-          (r1 === r2 && c1 === c2) || // 不能和自己交换
-          (lastSwap && lastSwap.r1 === r2 && lastSwap.c1 === c2 && lastSwap.r2 === r1 && lastSwap.c2 === c1) || // 不和上一次反向
+          (r1 === r2 && c1 === c2) ||
+          (lastSwap && lastSwap.r1 === r2 && lastSwap.c1 === c2 && lastSwap.r2 === r1 && lastSwap.c2 === c1) ||
           attempts > 30
         );
         const temp = board[r1][c1];
@@ -725,11 +406,8 @@
         lastSwap = { r1, c1, r2, c2 };
       }
 
-      // 4. 如果打乱后恰好已经赢了，再打乱一次
-      if (checkWin()) {
-        newGame();
-        return;
-      }
+      // 4. 如果打乱后恰好赢了，再打乱一次
+      if (checkWin()) { newGame(); return; }
 
       // 5. 渲染
       renderBoard();
@@ -745,7 +423,6 @@
       return a;
     }
 
-    // ==================== 渲染 ====================
     function renderBoard() {
       gridEl.innerHTML = '';
       for (let r = 0; r < rows; r++) {
@@ -754,12 +431,10 @@
           cell.className = 'cell';
           cell.dataset.row = r;
           cell.dataset.col = c;
-
           const ball = document.createElement('div');
           ball.className = 'ball ' + COLORS[board[r][c]];
           ball.dataset.row = r;
           ball.dataset.col = c;
-
           cell.appendChild(ball);
           gridEl.appendChild(cell);
         }
@@ -772,7 +447,6 @@
         for (let c = 0; c < cols; c++) {
           const cell = document.createElement('div');
           cell.className = 'hint-cell ' + COLORS[targetBoard[r][c]];
-          // 用背景色
           cell.style.background = getBallGradient(targetBoard[r][c]);
           hintGridEl.appendChild(cell);
         }
@@ -790,22 +464,16 @@
       return gradients[colorIdx] || gradients[0];
     }
 
-    // ==================== 点击交换 ====================
     function handleCellClick(row, col) {
-      if (gameWon || isDragging) return;
-
+      if (gameWon || isDragging || isSwapping) return;
       playSound('click');
-
       if (selectedCell === null) {
-        // 选中第一个
         selectedCell = { row, col };
         updateSelectedUI();
       } else if (selectedCell.row === row && selectedCell.col === col) {
-        // 点击同一个，取消选中
         selectedCell = null;
         updateSelectedUI();
       } else {
-        // 选中第二个，交换
         swapBalls(selectedCell.row, selectedCell.col, row, col);
         selectedCell = null;
         updateSelectedUI();
@@ -821,51 +489,37 @@
       }
     }
 
-    // ==================== 交换逻辑 ====================
     function swapBalls(r1, c1, r2, c2) {
-      // 交换数据
       const temp = board[r1][c1];
       board[r1][c1] = board[r2][c2];
       board[r2][c2] = temp;
-
-      // 播放音效
       playSound('swap');
-
-      // 动画交换
+      isSwapping = true;
       const cells = gridEl.querySelectorAll('.cell');
       const cell1 = cells[r1 * cols + c1];
       const cell2 = cells[r2 * cols + c2];
       const ball1 = cell1.querySelector('.ball');
       const ball2 = cell2.querySelector('.ball');
-
-      // 计算位移
       const rect1 = ball1.getBoundingClientRect();
       const rect2 = ball2.getBoundingClientRect();
       const dx = rect2.left - rect1.left;
       const dy = rect2.top - rect1.top;
-
       ball1.classList.add('swapping');
       ball2.classList.add('swapping');
       ball1.style.transform = `translate(${dx}px, ${dy}px)`;
       ball2.style.transform = `translate(${-dx}px, ${-dy}px)`;
-
-      // 动画结束后重新渲染
       setTimeout(() => {
         renderBoard();
-        // 检查胜利
-        if (checkWin()) {
-          handleVictory();
-        }
+        updateSelectedUI();
+        isSwapping = false;
+        if (checkWin()) { handleVictory(); }
       }, 300);
     }
 
-    // ==================== 胜利检测 ====================
     function checkWin() {
       const winCond = settings.winCondition;
-      
       const rowsOk = checkAllRows();
       const colsOk = checkAllCols();
-
       if (winCond === 'rows') return rowsOk;
       if (winCond === 'cols') return colsOk;
       if (winCond === 'both') return rowsOk || colsOk;
@@ -892,22 +546,13 @@
       return true;
     }
 
-    // ==================== 胜利处理 ====================
     function handleVictory() {
       gameWon = true;
       playSound('victory');
-
-      // 小球跳动
       const cells = gridEl.querySelectorAll('.cell');
       cells.forEach(cell => cell.classList.add('victory'));
-
-      // 撒花
       createConfetti();
-
-      // 延迟显示胜利弹窗
-      setTimeout(() => {
-        victoryOverlay.classList.add('show');
-      }, 800);
+      setTimeout(() => { victoryOverlay.classList.add('show'); }, 800);
     }
 
     function createConfetti() {
@@ -924,12 +569,10 @@
           confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
           confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
           document.body.appendChild(confetti);
-
           const duration = 2 + Math.random() * 2;
           const sway = (Math.random() - 0.5) * 200;
-          
           confetti.animate([
-            { transform: `translate(0, 0) rotate(0deg)`, opacity: 1 },
+            { transform: 'translate(0, 0) rotate(0deg)', opacity: 1 },
             { transform: `translate(${sway}px, 100vh) rotate(720deg)`, opacity: 0.8 }
           ], {
             duration: duration * 1000,
@@ -948,30 +591,20 @@
     function handleDragStart(e, row, col, ballEl) {
       if (gameWon) return;
       e.preventDefault();
-
       isDragging = true;
       dragBall = ballEl;
-      
-      // 记录原始尺寸（用像素固定大小，防止 position:fixed 时百分比宽度失效）
       const rect = ballEl.getBoundingClientRect();
       const origWidth = rect.width;
       const origHeight = rect.height;
-      
       dragBall.classList.add('dragging');
-      
-      // 用像素固定尺寸，避免 position: fixed 后百分比宽度相对于视口导致球变大
       dragBall.style.width = origWidth + 'px';
       dragBall.style.height = origHeight + 'px';
-
-      // 记录起始位置
       const touch = e.touches ? e.touches[0] : e;
       dragStartPos = { x: rect.left, y: rect.top };
       dragOffset = {
         x: touch.clientX - rect.left - rect.width / 2,
         y: touch.clientY - rect.top - rect.height / 2
       };
-
-      // 固定位置
       dragBall.style.position = 'fixed';
       dragBall.style.left = rect.left + 'px';
       dragBall.style.top = rect.top + 'px';
@@ -982,35 +615,24 @@
     function handleDragMove(e) {
       if (!isDragging || !dragBall) return;
       e.preventDefault();
-
       const touch = e.touches ? e.touches[0] : e;
       const ballSize = dragBall.offsetWidth;
       const x = touch.clientX - dragOffset.x - ballSize / 2;
       const y = touch.clientY - dragOffset.y - ballSize / 2;
-
       dragBall.style.left = x + 'px';
       dragBall.style.top = y + 'px';
-
-      // 检测悬停的格子
       const cells = gridEl.querySelectorAll('.cell');
       cells.forEach(cell => cell.classList.remove('drag-over'));
-
       const cellBelow = getCellAtPoint(touch.clientX, touch.clientY);
-      if (cellBelow) {
-        cellBelow.classList.add('drag-over');
-      }
+      if (cellBelow) { cellBelow.classList.add('drag-over'); }
     }
 
     function handleDragEnd(e) {
       if (!isDragging || !dragBall) return;
-
       const touch = e.changedTouches ? e.changedTouches[0] : e;
       const targetCell = getCellAtPoint(touch.clientX, touch.clientY);
-
       const fromRow = parseInt(dragBall.dataset.row);
       const fromCol = parseInt(dragBall.dataset.col);
-
-      // 恢复球的样式
       dragBall.classList.remove('dragging');
       dragBall.style.position = '';
       dragBall.style.left = '';
@@ -1019,25 +641,18 @@
       dragBall.style.pointerEvents = '';
       dragBall.style.width = '';
       dragBall.style.height = '';
-
       const cells = gridEl.querySelectorAll('.cell');
       cells.forEach(cell => cell.classList.remove('drag-over'));
-
       isDragging = false;
-
       if (targetCell) {
         const toRow = parseInt(targetCell.dataset.row);
         const toCol = parseInt(targetCell.dataset.col);
-
         if (fromRow !== toRow || fromCol !== toCol) {
-          // 不同格子，交换
           swapBalls(fromRow, fromCol, toRow, toCol);
           dragBall = null;
           return;
         }
       }
-
-      // 没有拖到有效格子，算点击
       dragBall = null;
       handleCellClick(fromRow, fromCol);
     }
@@ -1056,14 +671,11 @@
     // ==================== 音效 ====================
     function playSound(type) {
       if (!settings.soundOn) return;
-
       try {
         if (!audioCtx) {
           audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
-
         const now = audioCtx.currentTime;
-
         if (type === 'click') {
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
@@ -1088,7 +700,6 @@
           osc.start(now);
           osc.stop(now + 0.2);
         } else if (type === 'victory') {
-          // 胜利音效 - 上升音阶
           const notes = [523, 659, 784, 1047];
           notes.forEach((freq, i) => {
             const osc = audioCtx.createOscillator();
@@ -1105,49 +716,41 @@
             osc.stop(t + 0.3);
           });
         }
-      } catch (e) {
-        // 忽略音效错误
-      }
+      } catch (e) {}
     }
 
     // ==================== 事件绑定 ====================
     function setupEvents() {
-      // 重开按钮
       restartBtn.addEventListener('click', () => {
         restartBtn.classList.remove('spinning');
-        void restartBtn.offsetWidth; // 触发重绘
+        void restartBtn.offsetWidth;
         restartBtn.classList.add('spinning');
         playSound('click');
         setTimeout(newGame, 300);
       });
 
-      // 胜利弹窗再来一局
       playAgainBtn.addEventListener('click', () => {
         playSound('click');
         newGame();
       });
 
-      // 设置按钮
       settingsBtn.addEventListener('click', () => {
         playSound('click');
         settingsOverlay.classList.add('show');
       });
 
-      // 关闭设置
       closeSettingsBtn.addEventListener('click', () => {
         playSound('click');
         settingsOverlay.classList.remove('show');
-        newGame(); // 应用新设置重新开局
+        newGame();
       });
 
-      // 点击遮罩关闭设置
       settingsOverlay.addEventListener('click', (e) => {
         if (e.target === settingsOverlay) {
           settingsOverlay.classList.remove('show');
         }
       });
 
-      // 提示开关
       hintToggle.addEventListener('click', () => {
         settings.showHint = !settings.showHint;
         hintToggle.classList.toggle('on', settings.showHint);
@@ -1156,7 +759,6 @@
         playSound('click');
       });
 
-      // 音效开关
       soundToggle.addEventListener('click', () => {
         settings.soundOn = !settings.soundOn;
         soundToggle.classList.toggle('on', settings.soundOn);
@@ -1164,7 +766,6 @@
         if (settings.soundOn) playSound('click');
       });
 
-      // 颜色数量
       colorOptions.querySelectorAll('.option-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           settings.colorCount = parseInt(btn.dataset.colors);
@@ -1175,7 +776,6 @@
         });
       });
 
-      // 胜利条件
       winOptions.querySelectorAll('.option-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           settings.winCondition = btn.dataset.win;
@@ -1186,13 +786,10 @@
         });
       });
 
-      // 格子事件（委托）
       gridEl.addEventListener('mousedown', handleGridPointerDown);
       gridEl.addEventListener('touchstart', handleGridPointerDown, { passive: false });
-
       document.addEventListener('mousemove', handleDragMove);
       document.addEventListener('touchmove', handleDragMove, { passive: false });
-
       document.addEventListener('mouseup', handleDragEnd);
       document.addEventListener('touchend', handleDragEnd);
     }
@@ -1200,30 +797,23 @@
     function handleGridPointerDown(e) {
       const ball = e.target.closest('.ball');
       if (!ball) return;
-
       const row = parseInt(ball.dataset.row);
       const col = parseInt(ball.dataset.col);
-
-      // 判断是点击还是拖拽 - 用移动距离区分
-      // 先记录起始位置，move时判断是否超过阈值
       const startX = e.touches ? e.touches[0].clientX : e.clientX;
       const startY = e.touches ? e.touches[0].clientY : e.clientY;
-
       let moved = false;
       let dragStarted = false;
-      const DRAG_THRESHOLD = 6; // 拖拽阈值，像素
+      const DRAG_THRESHOLD = 6;
 
       function onMove(ev) {
         if (dragStarted) return;
         const mx = ev.touches ? ev.touches[0].clientX : ev.clientX;
         const my = ev.touches ? ev.touches[0].clientY : ev.clientY;
         const dist = Math.sqrt((mx - startX) ** 2 + (my - startY) ** 2);
-        
         if (dist > DRAG_THRESHOLD && !moved) {
           moved = true;
           dragStarted = true;
           handleDragStart(e, row, col, ball);
-          // 移除一次性监听
           document.removeEventListener('mousemove', onMove);
           document.removeEventListener('touchmove', onMove);
         }
@@ -1234,9 +824,7 @@
         document.removeEventListener('touchmove', onMove);
         document.removeEventListener('mouseup', onUp);
         document.removeEventListener('touchend', onUp);
-
         if (!moved && !dragStarted) {
-          // 纯点击
           handleCellClick(row, col);
         }
       }
@@ -1247,7 +835,6 @@
       document.addEventListener('touchend', onUp);
     }
 
-    // ==================== 启动 ====================
     init();
   </script>
 </body>
