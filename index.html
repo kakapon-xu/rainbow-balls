@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>å½©è¹çç</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(180deg, #87CEEB 0%, #B0E0E6 50%, #E0F4FF 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* é¡¶é¨åºå */
+    .top-bar {
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .icon-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.8);
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.92);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* ç®æ æç¤º */
+    .hint-preview {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 16px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .hint-preview .label {
+      font-size: 13px;
+      color: #666;
+      font-weight: 600;
+    }
+
+    .hint-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 18px);
+      grid-template-rows: repeat(3, 18px);
+      gap: 3px;
+    }
+
+    .hint-cell {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+    }
+
+    /* æ¸¸æä¸»åºå */
+    .game-container {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 28px;
+      padding: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+      position: relative;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .cell {
+      width: 90px;
+      height: 90px;
+      background: rgba(240, 248, 255, 0.8);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: background 0.2s;
+    }
+
+    .cell.drag-over {
+      background: rgba(255, 230, 150, 0.6);
+    }
+
+    .cell.selected::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 24px;
+      border: 4px solid #FFD700;
+      animation: pulse 0.8s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.03); }
+    }
+
+    /* ç */
+    .ball {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 
+        inset -8px -8px 16px rgba(0, 0, 0, 0.15),
+        inset 4px 4px 8px rgba(255, 255, 255, 0.5),
+        0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .ball::before {
+      content: '';
+      position: absolute;
+      top: 12px;
+      left: 16px;
+      width: 20px;
+      height: 14px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 50%;
+      transform: rotate(-30deg);
+      filter: blur(2px);
+    }
+
+    .ball.dragging {
+      transform: scale(1.15);
+      z-index: 100;
+      box-shadow: 
+        inset -8px -8px 16px rgba(0, 0, 0, 0.15),
+        inset 4px 4px 8px rgba(255, 255, 255, 0.5),
+        0 8px 24px rgba(0, 0, 0, 0.25);
+      transition: none;
+    }
+
+    .ball.swapping {
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* çé¢è² */
+    .ball.red {
+      background: linear-gradient(145deg, #ff7676, #e64545);
+    }
+    .ball.yellow {
+      background: linear-gradient(145deg, #ffe566, #ffc42c);
+    }
+    .ball.blue {
+      background: linear-gradient(145deg, #6cb8ff, #3a8ee6);
+    }
+    .ball.green {
+      background: linear-gradient(145deg, #7be495, #4caf50);
+    }
+    .ball.purple {
+      background: linear-gradient(145deg, #c792ea, #9c64d1);
+    }
+
+    /* åºé¨éå¼æé® */
+    .bottom-bar {
+      margin-top: 24px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .restart-btn {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      font-size: 28px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .restart-btn:active {
+      transform: scale(0.9);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    }
+
+    .restart-btn.spinning {
+      animation: spin 0.6s ease-in-out;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* èå©é®ç½© */
+    .victory-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .victory-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .victory-content {
+      text-align: center;
+      transform: scale(0.5);
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .victory-overlay.show .victory-content {
+      transform: scale(1);
+    }
+
+    .victory-text {
+      font-size: 56px;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 
+        0 0 20px rgba(255, 215, 0, 0.8),
+        0 4px 8px rgba(0, 0, 0, 0.3);
+      margin-bottom: 30px;
+      animation: bounce 0.6s ease-in-out infinite alternate;
+    }
+
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-10px); }
+    }
+
+    .play-again-btn {
+      padding: 16px 40px;
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(145deg, #ff9a56, #ff6b35);
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .play-again-btn:active {
+      transform: scale(0.95);
+      box-shadow: 0 3px 10px rgba(255, 107, 53, 0.4);
+    }
+
+    /* æè±ææ */
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* èå©æ¶å°çè·³å¨ */
+    .cell.victory .ball {
+      animation: victoryBounce 0.6s ease-in-out infinite alternate;
+    }
+
+    .cell.victory:nth-child(2) .ball { animation-delay: 0.1s; }
+    .cell.victory:nth-child(3) .ball { animation-delay: 0.2s; }
+    .cell.victory:nth-child(4) .ball { animation-delay: 0.15s; }
+    .cell.victory:nth-child(5) .ball { animation-delay: 0.25s; }
+    .cell.victory:nth-child(6) .ball { animation-delay: 0.05s; }
+    .cell.victory:nth-child(7) .ball { animation-delay: 0.3s; }
+    .cell.victory:nth-child(8) .ball { animation-delay: 0.1s; }
+    .cell.victory:nth-child(9) .ball { animation-delay: 0.2s; }
+
+    @keyframes victoryBounce {
+      from { transform: translateY(0) scale(1); }
+      to { transform: translateY(-12px) scale(1.1); }
+    }
+
+    /* è®¾ç½®é¢æ¿ */
+    .settings-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .settings-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .settings-panel {
+      width: 100%;
+      max-width: 420px;
+      background: #fff;
+      border-radius: 28px 28px 0 0;
+      padding: 24px 20px 32px;
+      transform: translateY(100%);
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .settings-overlay.show .settings-panel {
+      transform: translateY(0);
+    }
+
+    .settings-title {
+      font-size: 22px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .setting-row:last-child {
+      border-bottom: none;
+    }
+
+    .setting-label {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .setting-desc {
+      font-size: 13px;
+      color: #999;
+      margin-top: 2px;
+    }
+
+    /* å¼å³æé® */
+    .toggle {
+      width: 52px;
+      height: 30px;
+      background: #ddd;
+      border-radius: 15px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.25s;
+      flex-shrink: 0;
+    }
+
+    .toggle.on {
+      background: #4ecdc4;
+    }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 24px;
+      height: 24px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.25s;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle.on::after {
+      transform: translateX(22px);
+    }
+
+    /* éé¡¹ç» */
+    .option-group {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .option-btn {
+      padding: 6px 12px;
+      font-size: 14px;
+      font-weight: 600;
+      border: 2px solid #e0e0e0;
+      background: #fff;
+      border-radius: 20px;
+      cursor: pointer;
+      color: #666;
+      transition: all 0.2s;
+    }
+
+    .option-btn.active {
+      border-color: #4ecdc4;
+      background: #e8f8f5;
+      color: #2a9d8f;
+    }
+
+    .close-settings {
+      width: 100%;
+      margin-top: 20px;
+      padding: 14px;
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(145deg, #667eea, #764ba2);
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+    }
+
+    .close-settings:active {
+      transform: scale(0.98);
+    }
+
+    /* ååºå¼ */
+    @media (max-width: 360px) {
+      .cell {
+        width: 75px;
+        height: 75px;
+      }
+      .ball {
+        width: 58px;
+        height: 58px;
+      }
+      .ball::before {
+        top: 10px;
+        left: 13px;
+        width: 16px;
+        height: 11px;
+      }
+      .grid {
+        gap: 10px;
+      }
+      .game-container {
+        padding: 16px;
+      }
+      .victory-text {
+        font-size: 44px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- é¡¶é¨æ  -->
+  <div class="top-bar">
+    <button class="icon-btn" id="settingsBtn" title="è®¾ç½®">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5b7a9e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+    </button>
+    <div class="hint-preview" id="hintPreview">
+      <span class="label">ç®æ </span>
+      <div class="hint-grid" id="hintGrid"></div>
+    </div>
+    <div style="width:48px"></div>
+  </div>
+
+  <!-- æ¸¸æä¸»åºå -->
+  <div class="game-container">
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <!-- åºé¨éå¼ -->
+  <div class="bottom-bar">
+    <button class="restart-btn" id="restartBtn" title="éæ°å¼å§">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5b7a9e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- èå©é®ç½© -->
+  <div class="victory-overlay" id="victoryOverlay">
+    <div class="victory-content">
+      <div class="victory-text">å¤ªæ£äºï¼</div>
+      <button class="play-again-btn" id="playAgainBtn">åæ¥ä¸å±</button>
+    </div>
+  </div>
+
+  <!-- è®¾ç½®é¢æ¿ -->
+  <div class="settings-overlay" id="settingsOverlay">
+    <div class="settings-panel">
+      <div class="settings-title">æ¸¸æè®¾ç½®</div>
+      
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">é¢è²æ°é</div>
+          <div class="setting-desc">é¢è²è¶å¤é¾åº¦è¶é«</div>
+        </div>
+        <div class="option-group" id="colorOptions">
+          <button class="option-btn" data-colors="2">2</button>
+          <button class="option-btn active" data-colors="3">3</button>
+          <button class="option-btn" data-colors="4">4</button>
+          <button class="option-btn" data-colors="5">5</button>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">ç®æ æç¤º</div>
+          <div class="setting-desc">æ¾ç¤ºç®æ å¾æ ·</div>
+        </div>
+        <div class="toggle on" id="hintToggle"></div>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">é³æ</div>
+          <div class="setting-desc">æ¸¸æé³æå¼å³</div>
+        </div>
+        <div class="toggle on" id="soundToggle"></div>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">èå©æ¡ä»¶</div>
+          <div class="setting-desc">è¾¾ææ¡ä»¶å³å¯è·è</div>
+        </div>
+        <div class="option-group" id="winOptions">
+          <button class="option-btn active" data-win="rows">è¡</button>
+          <button class="option-btn" data-win="cols">å</button>
+          <button class="option-btn" data-win="both">é½è¡</button>
+        </div>
+      </div>
+
+      <button class="close-settings" id="closeSettingsBtn">å¼å§æ¸¸æ</button>
+    </div>
+  </div>
+
+  <script>
+    // ==================== æ¸¸æéç½® ====================
+    const COLORS = ['red', 'yellow', 'blue', 'green', 'purple'];
+    const COLOR_NAMES = { red: 'çº¢', yellow: 'é»', blue: 'è', green: 'ç»¿', purple: 'ç´«' };
+
+    // é»è®¤è®¾ç½®
+    let settings = {
+      colorCount: 3,
+      showHint: true,
+      soundOn: true,
+      winCondition: 'rows' // rows, cols, both
+    };
+
+    // æ¸¸æç¶æ
+    let board = []; // 3x3 äºç»´æ°ç»ï¼å­é¢è²ç´¢å¼
+    let targetBoard = []; // ç®æ å¸å±
+    let selectedCell = null; // {row, col} æ null
+    let isDragging = false;
+    let dragBall = null;
+    let dragStartPos = { x: 0, y: 0 };
+    let dragOffset = { x: 0, y: 0 };
+    let gameWon = false;
+    let audioCtx = null;
+
+    // ==================== DOM åç´  ====================
+    const gridEl = document.getElementById('grid');
+    const hintGridEl = document.getElementById('hintGrid');
+    const hintPreviewEl = document.getElementById('hintPreview');
+    const restartBtn = document.getElementById('restartBtn');
+    const victoryOverlay = document.getElementById('victoryOverlay');
+    const playAgainBtn = document.getElementById('playAgainBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsOverlay = document.getElementById('settingsOverlay');
+    const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+    const hintToggle = document.getElementById('hintToggle');
+    const soundToggle = document.getElementById('soundToggle');
+    const colorOptions = document.getElementById('colorOptions');
+    const winOptions = document.getElementById('winOptions');
+
+    // ==================== åå§å ====================
+    function init() {
+      loadSettings();
+      applySettingsUI();
+      newGame();
+      setupEvents();
+    }
+
+    // ==================== è®¾ç½®å­å¨ ====================
+    function saveSettings() {
+      try {
+        localStorage.setItem('rainbowBallsSettings', JSON.stringify(settings));
+      } catch (e) {}
+    }
+
+    function loadSettings() {
+      try {
+        const saved = localStorage.getItem('rainbowBallsSettings');
+        if (saved) {
+          settings = { ...settings, ...JSON.parse(saved) };
+        }
+      } catch (e) {}
+    }
+
+    function applySettingSUI() {
+      // é¢è²æ°é
+      colorOptions.querySelectorAll('.option-btn').forEach(btn => {
+        btn.classList.toggle('active', parseInt(btn.dataset.colors) === settings.colorCount);
+      });
+      // æç¤ºå¼å³
+      hintToggle.classList.toggle('on', settings.showHint);
+      hintPreviewEl.style.display = settings.showHint ? 'flex' : 'none';
+      // é³æå¼å³
+      soundToggle.classList.toggle('on', settings.soundOn);
+      // èå©æ¡ä»¶
+      winOptions.querySelectorAll('.option-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.win === settings.winCondition);
+      });
+    }
+
+    // ==================== çææ°æ¸¸æ ====================
+    function newGame() {
+      gameWon = false;
+      victoryOverlay.classList.remove('3how');
+      clearConfetti();
+      selectedCell = null;
+
+      const n = settings.colorCount;
+      
+      // 1. åçæç®æ å¸å±ï¼æ¯è¡åè² / æ¯ååè²ï¼
+      targetBoard = [];
+      const colorIndices = [];
+      for (let i = 0; i < n; i++) colorIndices.push(i);
+      
+      // éæºæåé¢è²å°è¡/å
+      const shuffled = shuffleArray([...colorIndices]);
+      
+      if (settings.winCondition === 'cols') {
+        // æ¯ååè²
+        for (let r = 0; r < 3; r++) {
+          targetBoard[r] = [];
+          for (let c = 0; c < 3; c++) {
+            targetBoard[r][c] = shuffled[c % n];
+          }
+        }
+      } else {
+        // æ¯è¡åè²ï¼rows æ both é½ç¨è¡åç®æ ï¼
+        for (let r = 0; r < 3; r++) {
+          targetBoard[r] = [];
+          for (let c =  0; c < 3; c++) {
+            targetBoard[r][c] = shuffled[2% n];
+          }
+        }
+      }
+
+      // 2. å¤å¶ç®æ å¸å±å°å½åæ£ç
+      board = targetBoard.map(row => [...row]);
+
+      // 3. éæºäº¤æ¢æä¹±ï¼ä¿è¯æè§£ï¼
+      const shuffleMoves = 8 + Math.floor(Math.random() * 5); // 8-12æ¬¡äº¤æ¢
+      let lastSwap = null;
+      for (let i = 0; i < shuffleMoves; i++) {
+        let r1, c1, r2, c2;
+        let attempts = 0;
+        do {
+          r1 = Math.floor(Math.random() * 3);
+          c1 = Math.floor(Math.random() * 3);
+          r2 = Math.floor(Math.random() * 3);
+          c2 = Math.floor(Math.random() * 3);
+          attempts++;
+        } while (
+          (r1 === r2 && c1 === c2) || // ä¸è½åèªå·±äº¤æ¢
+          (lastSwap && lastSwap.r1 === r2 && lastSwap.c1 === c2 && lastSwap.r2 === r1 && lastSwap.c2 === c1) || // ä¸åä¸ä¸æ¬¡åå
+          attempts > 20
+        );
+        const temp = board[r1][c1];
+        board[r1][c1] = board[r2][c2];
+        board[r2][c2] = temp;
+        lastSwap = { r1, c1, r2, c2 };
+      }
+
+      // 4. å¦ææä¹±åæ°å¥½å·²ç»èµ¢äºï¼åæä¹±ä¸æ¬¡
+      if (checkWin()) {
+        newGame();
+        return;
+      }
+
+      // 5. æ¸²æ
+      renderBoard();
+      renderHint();
+    }
+
+    function shuffleArray(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    // ==================== æ¸²æ ====================
+    function renderBoard() {
+      gridEl.innerHTML = '';
+      for (let r = 0; r < 3; r++) {
+        for (let c = 0; c < 3; c++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          cell.dataset.row = r;
+          cell.dataset.col = c;
+
+          const ball = document.createElement('div');
+          ball.className = 'ball ' + COLORS[board[r][c]];
+          ball.dataset.row = r;
+          ball.dataset.col = c;
+
+          cell.appendChild(ball);
+          gridEl.appendChild(cell);
+        }
+      }
+    }
+
+    function renderHint() {
+      hintGridEl.innerHTML = '';
+      for (let r = 0; r < 3; r++) {
+        for (let c = 0; c < 3; c++) {
+          const cell = document.createElement('div');
+          cell.className = 'hint-cell ' + COLORS[targetBoard[r][c]];
+          // ç¨èæ¯è²
+          cell.style.background = getBallGradient(targetBoard[r][c]);
+          hintGridEl.appendChild(cell);
+        }
+      }
+    }
+
+    function getBallGradient(colorIdx) {
+      const gradients = {
+        0: 'linear-gradient(145deg, #ff7676, #e64545)',
+        1: 'linear-gradient(145deg, #ffe566, #ffc42c)',
+        2: 'linear-gradient(145deg, #6cb8ff, #3a8ee6)',
+        3: 'linear-gradient(145deg, #7be495, #4caf50)',
+        4: 'linear-gradient(145deg, #c792ea, #9c64d1)'
+      };
+      return gradients[colorIdx] || gradients[0];
+    }
+
+    // ==================== ç¹å»äº¤æ¢ ====================
+    function handleCellClick(row, col) {
+      if (gameWon || isDragging) return;
+
+      playSound('click');
+
+      if (selectedCell === null) {
+        // éä¸­ç¬¬ä¸ä¸ª
+        selectedCell = { row, col };
+        updateSelectedUI();
+      } else if (selectedCell.row === row && selectedCell.col === col) {
+        // ç¹å»åä¸ä¸ªï¼åæ¶éä¸­
+        selectedCell = null;
+        updateSelectedUI();
+      } else {
+        // éä¸­ç¬¬äºä¸ªï¼äº¤æ¢
+        swapBalls(selectedCell.row, selectedCell.col, row, col);
+        selectedCell = null;
+        updateSelectedUI();
+      }
+    }
+
+    function updateSelectedUI() {
+      const cells = gridEl.querySelectorAll('.cell');
+      cells.forEach(cell => cell.classList.remove('selected'));
+      if (selectedCell) {
+        const idx = selectedCell.row * 3 + selectedCell.col;
+        cells[idx].classList.add('selected');
+      }
+    }
+
+    // ==================== äº¤æ¢é»è¾ ====================
+    function swapBalls(r1, c1, r2, c2) {
+      // äº¤æ¢æ°æ®
+      const temp = board[r1][c1];
+      board[r1][c1] = board[r][c2];
+      board[r2][c2] = temp;
+
+      // æ­æ¾é³æ
+      playSound('swap');
+
+      //å¸å»äº¤æ¢
+      const cells = gridEl.querySelectorAll('.cell');
+      const cell1 = cells[r1 * 3 + c1];
+      const cell2 = cells[r * 3 + c2];
+      const ball1 = cell1.querySelector('.ball');
+      const ball2 = cell2.querySelector('.ball');
+
+      // è®¡ç®ä½ç§»
+      const rect1 = ball1.getBoundingClientRect();
+      const rect2 = ball2.getBoundingClientRect();
+      const dx = rect2.left - rect1.left;
+      const dy = rect2.top - rect1.top;
+
+      ball1.classList.add('swapping');
+      ball2.classList.add('swapping');
+      ball1.style.transform = `translate(${dx}px, ${dy}px)`;
+      ball2.style.transform = `translate(${-dx}px, ${-dy}px)`;
+
+      // å¨ç»ç»æåéæ°æ¸²æ
+      setTimeout(() => {
+        renderBoard();
+        // æ£æ¥èå©
+        if (checkWin()) {
+          handleVictory();
+        }
+      }, 300);
+    }
+
+    // ==================== èå©æ£æµ ====================
+    function checkWin() {
+      const winCond = settings.winCondition;
+      
+      const rowsOk = checkAllRows();
+      colsOk = checkAllCols();
+
+      if (winCond === 'rows') return rowsOk;
+      if (winCond === 'cols') return colsOk;
+      if (winCond === 'both') return rowsOk || colsOk;
+      return false;
+    }
+
+    function checkAllRows() {
+      for (let r = 0; r < 3; r++) {
+        const color = board[r][0];
+        for (let c = 1; c < 3; c++) {
+          if (board[r][c] !== color) return false;
+        }
+      }
+      return true;
+    }
+
+    function checkAllCols() {
+      for (let c = 0; c < 3; c++) {
+        const color = board[0][c];
+        for (let r = 1; r < 3; r++) {
+          if (board[r][c] !== color) return false;
+        }
+      }
+      return true;
+    }
+
+    // ==================== èå©å¤ç ====================
+    function handleVictory() {
+      gameWon = true;
+      playSound('victory');
+
+      // å°çè·³å¨
+      const cells = gridEl.querySelectorAll('.cell');
+      cells.forEach(cell => cell.classList.add('victory');
+      // 9a-Îi)BÜX]PÛÛ]J
+NÂËÈ9níº/çù¦/¹é.º ç9b*yo.yê¥ÂÙ][Y[Ý]
+
+
+HOÂXÝÜSÝ\^KÛ\ÜÓ\ÝY
+	ÜÚÝÉÊNÂK
+NÂB[Ý[ÛÜX]PÛÛ]J
+HÂÛÛÝÛÛÜÈHÉÈÙË	ÈÙLÙ	Ë	ÈÍØÍÉË	ÈÍMË	ÈÙLË	ÈØØÍYN	×NÂÜ
+]HHÈH
+ÈJÊÊHÂÙ][Y[Ý]
+
+
+HOÂÛÛ]HHØÝ[Y[ÜX]Q[[Y[
+	Ù]ÊNÂÛÛ]KÛ\ÜÓ[YHH	ØÛÛ]IÎÂÛÛ]KÝ[KYHX][ÛJ
+H
+L
+È	ÝÉÎÂÛÛ]KÝ[KÜH	ËL	ÎÂÛÛ]KÝ[KXÚÙÜÝ[HÛÛÜÖÓX]ÛÜX][ÛJ
+H
+ÛÛÜË[ÝNÂÛÛ]KÝ[KÚYH
+
+
+ÈX][ÛJ
+H
+
+H
+È	Ü	ÎÂÛÛ]KÝ[KZYÚH
+
+
+ÈX][ÛJ
+H
+
+H
+È	Ü	ÎÂÛÛ]KÝ[KÜ\Y]\ÈHX][ÛJ
+HHÈ	ÍL	IÈ	Ì	ÎÂÛÛ]KÝ[K[ÙÜHHÝ]J	ÓX][ÛJ
+H
+ÍYYÊXÂØÝ[Y[ÙK\[Ú[
+ÛÛ]JNÂÛÛÝ\][ÛH
+ÈX][ÛJ
+H
+ÂÛÛÝÝØ^HH
+X][ÛJ
+HHJH
+ÂÛÛ]K[[X]JÂÈ[ÙÜN[Û]J
+HÝ]JYÊXÜXÚ]NHKÈ[ÙÜN[Û]J	ÜÝØ^_\L
+HÝ]J
+ÌYÊXÜXÚ]NBKÂ\][Û\][Û
+LX\Ú[Î	ØÝXXËX^Y\K
+
+KM
+IË[	ÙÜØ\ÉÂJKÛ[\ÚH
+
+HOÛÛ]K[[ÝJ
+NÂKH
+Ì
+NÂBB[Ý[ÛÛX\ÛÛ]J
+HÂØÝ[Y[]Y\TÙ[XÝÜ[
+	ËÛÛ]IÊKÜXXÚ
+ÈOË[[ÝJ
+JNÂBËÈOOOOOOOOOOOOOOOOOOOH9¢å¹¢ïyb§ú ïHOOOOOOOOOOOOOOOOOOOB[Ý[Û[QYÔÝ\
+KÝËÛÛ[[
+HÂY
+Ø[YUÛÛH]\ÂK][Y][
+
+NÂ\ÑYÙÚ[ÈHYNÂYÐ[H[[ÂYÐ[Û\ÜÓ\ÝY
+	ÙYÙÚ[ÉÊNÂËÈ:+¬9oez-mùiâù/cyïkÛÛÝÝXÚHKÝXÚ\ÈÈKÝXÚ\ÖÌHNÂÛÛÝXÝH[[Ù]Ý[[ÐÛY[XÝ
+
+NÂYÔÝ\ÜÈHÈXÝYNXÝÜNÂYÓÙÙ]HÂÝXÚÛY[HXÝYHXÝÚYÈNÝXÚÛY[HHXÝÜHXÝZYÚÈNÂËÈ9fî¹k¦¹/cyïkYÐ[Ý[KÜÚ][ÛH	Ù^Y	ÎÂYÐ[Ý[KYHXÝY
+È	Ü	ÎÂYÐ[Ý[KÜHXÝÜ
+È	Ü	ÎÂYÐ[Ý[K[^H	ÌL	ÎÂYÐ[Ý[KÚ[\][ÈH	ÛÛIÎÂB[Ý[Û[QYÓ[ÝJJHÂY
+Z\ÑYÙÚ[ÈYYÐ[
+H]\ÂK][Y][
+
+NÂÛÛÝÝXÚHKÝXÚ\ÈÈKÝXÚ\ÖÌHNÂÛÛÝHÝXÚÛY[HYÓÙÙ]HÍNÈËÈ9ä ùcb¹o¡ÛÛÝHHÝXÚÛY[HHYÓÙÙ]HHÍNÂYÐ[Ý[KYH
+È	Ü	ÎÂYÐ[Ý[KÜHH
+È	Ü	ÎÂËÈ9¨à9­bù «9`g9æ¡9¨/9kdÛÛÝÙ[ÈHÜY[]Y\TÙ[XÝÜ[
+	ËÙ[	ÊNÂÙ[ËÜXXÚ
+Ù[OÙ[Û\ÜÓ\Ý[[ÝJ	ÙYË[Ý\ÊJNÂÛÛÝÙ[[ÝÈHÙ]Ù[]Ú[
+ÝXÚÛY[ÝXÚÛY[JNÂY
+Ù[[ÝÊHÂÙ[[ÝËÛ\ÜÓ\ÝY
+	ÙYË[Ý\ÊNÂBB[Ý[Û[QYÑ[
+JHÂY
+Z\ÑYÙÚ[ÈYYÐ[
+H]\ÂÛÛÝÝXÚHKÚ[ÙYÝXÚ\ÈÈKÚ[ÙYÝXÚ\ÖÌHNÂÛÛÝ\Ù]Ù[HÙ]Ù[]Ú[
+ÝXÚÛY[ÝXÚÛY[JNÂÛÛÝÛTÝÈH\ÙR[
+YÐ[]\Ù]ÝÊNÂÛÛÝÛPÛÛH\ÙR[
+YÐ[]\Ù]ÛÛ
+NÂËÈ9 h¹i#yä ùæ¡9¨-ùo#ÂYÐ[Û\ÜÓ\Ý[[ÝJ	ÙYÙÚ[ÉÊNÂYÐ[Ý[KÜÚ][ÛH	ÉÎÂYÐ[Ý[KYH	ÉÎÂYÐ[Ý[KÜH	ÉÎÂYÐ[Ý[K[^H	ÉÎÂYÐ[Ý[KÚ[\][ÈH	ÉÎÂÛÛÝÙ[ÈHÜY[]Y\TÙ[XÝÜ[
+	ËÙ[	ÊNÂÙ[ËÜXXÚ
+Ù[OÙ[Û\ÜÓ\Ý[[ÝJ	ÙYË[Ý\ÊJNÂ\ÑYÙÚ[ÈH[ÙNÂY
+\Ù]Ù[
+HÂÛÛÝÔÝÈH\ÙR[
+\Ù]Ù[]\Ù]ÝÊNÂÛÛÝÐÛÛH\ÙR[
+\Ù]Ù[]\Ù]ÛÛ
+NÂY
+ÛTÝÈOOHÔÝÈÛPÛÛOOHÐÛÛ
+HÂËÈ9.#yd#9¨/9kd;ï#9.©9£hÝØ\[ÊÛTÝËÛPÛÛÔÝËÐÛÛ
+NÂYÐ[H[Â]\ÂBBËÈ9¬¨y§"y¢å¹b,9§"y¥b9¨/9kd;ï#9ë¥ùà®yaîÂYÐ[H[Â[PÙ[ÛXÚÊÛTÝËÛPÛÛ
+NÂB[Ý[ÛÙ]Ù[]Ú[
+JHÂÛÛÝÙ[ÈHÜY[]Y\TÙ[XÝÜ[
+	ËÙ[	ÊNÂÜ
+ÛÛÝÙ[ÙÙ[ÊHÂÛÛÝXÝHÙ[Ù]Ý[[ÐÛY[XÝ
+
+NÂY
+HXÝY	HXÝYÚ	HHXÝÜ	HHXÝÝÛJHÂ]\Ù[ÂBB]\[ÂBËÈOOOOOOOOOOOOOOOOOOOH:gìù¥bOOOOOOOOOOOOOOOOOOOB[Ý[Û^TÛÝ[
+\JHÂY
+\Ù][ÜËÛÝ[ÛH]\ÂHÂY
+X]Y[ÐÝ
+HÂ]Y[ÐÝH]È
+Ú[ÝË]Y[ÐÛÛ^Ú[ÝËÙXÚ]]Y[ÐÛÛ^
+J
+NÂBÛÛÝÝÈH]Y[ÐÝÝ\[[YNÂY
+\HOOH	ØÛXÚÉÊHÂÛÛÝÜØÈH]Y[ÐÝÜX]SÜØÚ[]Ü
+NÂÛÛÝØZ[H]Y[ÐÝÜX]QØZ[
+NÂÜØË\]Y[ÞK[YHH
+ÂÜØË\HH	ÜÚ[IÎÂØZ[ØZ[Ù][YP][YJÝÊNÂØZ[ØZ[^Û[X[[\Õ[YP][YJKÝÈ
+È
+NÂÜØËÛÛXÝ
+ØZ[NÂØZ[ÛÛXÝ
+]Y[ÐÝ\Ý[][ÛNÂÜØËÝ\
+ÝÊNÂÜØËÝÜ
+ÝÈ
+È
+NÂH[ÙHY
+\HOOH	ÜÝØ\	ÊHÂÛÛÝÜØÈH]Y[ÐÝÜX]SÜØÚ[]Ü
+NÂÛÛÝØZ[H]Y[ÐÝÜX]QØZ[
+NÂÜØË\]Y[ÞKÙ][YP][YJ
+ÝÊNÂÜØË\]Y[ÞK^Û[X[[\Õ[YP][YJ
+ÌÝÈ
+ÈMJNÂÜØË\HH	ÜÚ[IÎÂØZ[ØZ[Ù][YP][YJKÝÊNÂØZ[ØZ[^Û[X[[\Õ[YP][YJKÝÈ
+ÈNÂÜØËÛÛXÝ
+ØZ[NÂØZ[ÛÛXÝ
+]Y[ÐÝ\Ý[][ÛNÂÜØËÝ\
+ÝÊNÂÜØËÝÜ
+ÝÈ
+ÈNÂH[ÙHY
+\HOOH	ÝXÝÜIÊHÂËÈ: ç9b*zgìù¥bH9."¹caúgìù¦-ÛÛÝÝ\ÈHÍLË
+NK
+Î
+L
+
+×NÂÝ\ËÜXXÚ
+
+\KJHOÂÛÛÝÜØÈH]Y[ÐÝÜX]SÜØÚ[]Ü
+NÂÛÛÝØZ[H]Y[ÐÝÜX]QØZ[
+NÂÜØË\]Y[ÞK[YHH\NÂÜØË\HH	ÜÚ[IÎÂÛÛÝHÝÈ
+ÈH
+LÂØZ[ØZ[Ù][YP][YJ
+NÂØZ[ØZ[[X\[\Õ[YP][YJË
+ÈNÂØZ[ØZ[^Û[X[[\Õ[YP][YJK
+ÈÊNÂÜØËÛÛXÝ
+ØZ[NÂØZ[ÛÛXÝ
+]Y[ÐÝ\Ý[][ÛNÂÜØËÝ\
+
+NÂÜØËÝÜ
+
+ÈÊNÂJNÂBHØ]Ú
+JHÂËÈ9¯ìùåizgìù¥b:e'zúïÂBBËÈOOOOOOOOOOOOOOOOOOH9.¢ù.í¹îäyk¦OOOOOOOOOOOOOOOOOOOB[Ý[ÛÙ]\][Ê
+HÂËÈ:aãyo 9£"zd«\Ý\Y][\Ý[\	ØÛXÚÉË
+
+HOÂ\Ý\Û\ÜÓ\Ý[[ÝJ	ÜÜ[[ÉÊNÂÚY\Ý\ÙÙ]ÚYÈËÈ:)é¹cäzaãyîæ\Ý\Û\ÜÓ\ÝY
+	ÜÜ[[ÉÊNÂ^TÛÝ[
+	ØÛXÚÉÊNÂÙ][Y[Ý]
+]ÑØ[YKÌ
+NÂJNÂËÈ: ç9b*yo.yê¥ùa£y§iy. 9l`^PYØZ[Y][\Ý[\	ØÛXÚÉË
+
+HOÂ^TÛÝ[
+	ØÛXÚÉÊNÂ]ÑØ[YJ
+NÂJNÂËÈ:+¯¹ïk¹£"zd«Ù][ÜÐY][\Ý[\	ØÛXÚÉË
+
+HOÂ^TÛÝ[
+	ØÛXÚÉÊNÂÙ][ÜÓÝ\^KÛ\ÜÓ\ÝY
+	ÜÚÝÉÊNÂJNÂËÈ9alúeëz+¯¹ïkÛÜÙTÙ][ÜÐY][\Ý[\	ØÛXÚÉË
+
+HOÂ^TÛÝ[
+	ØÛXÚÉÊNÂÙ][ÜÓÝ\^KÛ\ÜÓ\Ý[[ÝJ	ÌÚÝÉÊNÂ]ÑØ[YJ
+NÈËÈ9n¥9å*9¥¬:+¯¹ïkºaãy¥¬9o 9l`JNÂËÈ9à®yaîú`k¹ïjyalúeëz+¯¹ïkÙ][ÜÓÝ\^KY][\Ý[\	ØÛXÚÉË
+JHOÂY
+K\Ù]OOHÙ][ÜÓÝ\^JHÂÙ][ÜÓÝ\^KÛ\ÜÓ\Ý[[ÝJ	ÜÚÝÉÊNÂBJNÂËÈ9£ä9é.¹o 9alÂ[ÙÙÛKY][\Ý[\	ØÛXÚÉË
+
+HOÂÙ][ÜËÚÝÒ[H\Ù][ÜËÚÝÒ[Â[ÙÙÛKÛ\ÜÓ\ÝÙÙÛJ	ÛÛËÙ][ÜËÚÝÒ[
+NÂ[]Y]Ñ[Ý[K\Ü^HHÙ][ÜËÚÝÒ[È	Ù^	È	ÛÛIÎÂØ]TÙ][ÜÊ
+NÂ^TÛÝ[
+	ØÛXÚÉÊNÂJNÂËÈ:gìù¥b9o 9alÂÛÝ[ÙÙÛKY][\Ý[\	ØÛXÚÉË
+
+HOÂÙ][ÜËÛÝ[ÛH\Ù][ÜËÛÝ[ÛÂÛÝ[ÙÙÛKÛ\ÜÓ\ÝÙÙÛJ	ÛÛËÙ][ÜËÛÝ[ÛNÂØ]TÙ][ÜÊ
+NÂY
+Ù][ÜËÛÝ[ÛH^TÛÝ[
+	ØÛXÚÉÊNÂJNÂËÈ:h§:"l¹¥l:aãÂÛÛÜÜ[ÛË]Y\TÙ[XÝÜ[
+	ËÜ[ÛXÊKÜXXÚ
+OÂY][\Ý[\	ØÛXÚÉË
+
+HOÂÙ][ÜËÛÛÜÛÝ[H\ÙR[
+]\Ù]ÛÛÜÊNÂÛÛÜÜ[ÛË]Y\TÙ[XÝÜ[
+	ËÜ[ÛXÊKÜXXÚ
+OÛ\ÜÓ\Ý[[ÝJ	ØXÝ]IÊJNÂÛ\ÜÓ\ÝY
+	ØXÝ]IÊNÂØ]TÙ][ÜÊ
+NÂ^TÛÝ[
+	ØÛXÚÉÊNÂJNÂJNÂËÈ: ç9b*y§hy.íÚ[Ü[ÛË]Y\TÙ[XÝÜ[
+	ËÜ[ÛXÊKÜXXÚ
+OÂY][\Ý[\	ØÛXÚÉË
+
+HOÂÙ][ÜËÚ[ÛÛ][ÛH]\Ù]Ú[ÂÚ[Ü[ÛË]Y\TÙ[XÝÜ[
+	ËÜ[ÛXÊKÜXXÚ
+OÛ\ÜÓ\Ý[[ÝJ	ØXÝ]IÊJNÂÛ\ÜÓ\ÝY
+	ØXÝ]IÊNÂØ]TÙ][ÜÊ
+NÂ^TÛÝ[
+	ØÛXÚÉÊNÂJNÂJNÂËÈ9¨/9kd9.¢ù.í»ï"9iå9¢f;ï"BÜY[Y][\Ý[\	Û[Ý\ÙYÝÛË[QÜYÚ[\ÝÛNÂÜY[Y][\Ý[\	ÝÝXÚÝ\	Ë[QÜYÚ[\ÝÛÈ\ÜÚ]N[ÙHJNÂØÝ[Y[Y][\Ý[\	Û[Ý\Ù[[ÝIË[QYÓ[ÝJNÂØÝ[Y[Y][\Ý[\	ÝÝXÚ[ÝIË[QYÓ[ÝKÈ\ÜÚ]N[ÙHJNÂØÝ[Y[Y][\Ý[\	Û[Ý\Ù]\	Ë[QYÑ[
+NÂØÝ[Y[Y][\Ý[\	ÝÝXÚ[	Ë[QYÑ[
+NÂB[Ý[Û[QÜYÚ[\ÝÛJHÂÛÛÝ[HK\Ù]ÛÜÙ\Ý
+	Ë[	ÊNÂY
+X[
+H]\ÂÛÛÝÝÈH\ÙR[
+[]\Ù]ÝÊNÂÛÛÝÛÛH\ÙR[
+[]\Ù]ÛÛ
+NÂËÈ9b)9¥«y¦+ùà®yaîú/æ9¦+ù¢å¹¢ïHH9å*9éîùbª:-çyé®ùc.¹b!ËÈ9ab:+¬9oez-mùiâù/cyïk»ï#[Ýy¥í¹b)9¥«y¦+ùd)º-¡z/áúf"9`/ÛÛÝÝ\HKÝXÚ\ÈÈKÝXÚ\ÖÌKÛY[KÛY[ÂÛÛÝÝ\HHKÝXÚ\ÈÈKÝXÚ\ÖÌKÛY[HKÛY[NÂ][ÝYH[ÙNÂ]YÔÝ\YH[ÙNÂ[Ý[ÛÛ[ÝJ]HÂY
+YÔÝ\Y
+H]\ÂÛÛÝ^H]ÝXÚ\ÈÈ]ÝXÚ\ÖÌKÛY[]ÛY[ÂÛÛÝ^HH]ÝXÚ\ÈÈ]ÝXÚ\ÖÌKÛY[H]ÛY[NÂÛÛÝ\ÝHX]Ü\
+
+^HÝ\
+H
+
+È
+^HHÝ\JH
+NÂY
+\Ý	[[ÝY
+HÂ[ÝYHYNÂYÔÝ\YHYNÂ[QYÔÝ\
+KÝËÛÛ[
+NÂËÈ9éîúfi9. 9«(y )ùæäyd+
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('touchmove', omMove);
+        }
+      }
+
+      function onUp() {
+        document.removeEventListener('mousemove', omMove);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        document.removeEventListener('touchend', onUp);
+
+        if (!moved && !dragStarted) {
+          // çº¯ç¹å»
+          handleCellClick(row, col);
+        }
+      }
+
+      document.addEventListener('mousemove', omMove);
+      document.addEventListener('touchmove', omMove, { passive: false });
+      document.addEventListener('mouseup', onUp);
+      document.addEventListener('touchend', onUp);
+    }
+
+    // ==================== å¯å¨ ====================
+    init();
+  </script>
+</body>
+</html>
