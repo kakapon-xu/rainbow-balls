@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>彩虹球球</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
+    html, body { width: 100%; height: 100%; overflow: hidden; touch-action: none; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(180deg, #87CEEB 0%, #B0E0E6 50%, #E0F4FF 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
+    }
+    .top-bar { width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .icon-btn {
+      width: 48px; height: 48px; border-radius: 50%; background: rgba(255, 255, 255, 0.8);
+      border: none; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .icon-btn:active { transform: scale(0.92); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1); }
+    .hint-preview {
+      background: rgba(255, 255, 255, 0.9); border-radius: 16px; padding: 10px 16px;
+      display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .hint-preview .label { font-size: 13px; color: #666; font-weight: 600; }
+    .hint-grid { display: grid; grid-auto-columns: 18px; grid-auto-rows: 18px; gap: 3px; }
+    .hint-cell { width: 18px; height: 18px; border-radius: 50%; }
+    .game-container {
+      background: rgba(255, 255, 255, 0.9); border-radius: 28px; padding: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12); position: relative;
+    }
+    .grid { display: grid; grid-auto-columns: 1fr; grid-auto-rows: 1fr; gap: 12px; }
+    .cell {
+      aspect-ratio: 1; min-width: 60px; min-height: 60px;
+      background: rgba(240, 248, 255, 0.8); border-radius: 20px;
+      display: flex; align-items: center; justify-content: center; position: relative; transition: background 0.2s;
+    }
+    .cell.drag-over { background: rgba(255, 230, 150, 0.6); }
+    .cell.selected::after {
+      content: ''; position: absolute; inset: -4px; border-radius: 24px;
+      border: 4px solid #FFD700; animation: pulse 0.8s ease-in-out infinite; pointer-events: none;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.03); } }
+    .ball {
+      width: 78%; height: 78%; border-radius: 50%; cursor: pointer; position: relative;
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: inset -8px -8px 16px rgba(0, 0, 0, 0.15), inset 4px 4px 8px rgba(255, 255, 255, 0.5), 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    .ball::before {
+      content: ''; position: absolute; top: 15%; left: 20%; width: 25%; height: 18%;
+      background: rgba(255, 255, 255, 0.6); border-radius: 50%; transform: rotate(-30deg); filter: blur(2px);
+    }
+    .ball.dragging {
+      transform: scale(1.15); z-index: 100;
+      box-shadow: inset -8px -8px 16px rgba(0, 0, 0, 0.15), inset 4px 4px 8px rgba(255, 255, 255, 0.5), 0 8px 24px rgba(0, 0, 0, 0.25);
+      transition: none;
+    }
+    .ball.swapping { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .ball.red { background: linear-gradient(145deg, #ff7676, #e64545); }
+    .ball.yellow { background: linear-gradient(145deg, #ffe566, #ffc42c); }
+    .ball.blue { background: linear-gradient(145deg, #6cb8ff, #3a8ee6); }
+    .ball.green { background: linear-gradient(145deg, #7be495, #4caf50); }
+    .ball.purple { background: linear-gradient(145deg, #c792ea, #9c64d1); }
+    .bottom-bar { margin-top: 24px; display: flex; justify-content: center; }
+    .restart-btn {
+      width: 64px; height: 64px; border-radius: 50%; background: rgba(255, 255, 255, 0.9);
+      border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12); transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .restart-btn:active { transform: scale(0.9); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12); }
+    .restart-btn.spinning { animation: spin 0.6s ease-in-out; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    .victory-overlay {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.3);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .victory-overlay.show { opacity: 1; pointer-events: auto; }
+    .victory-content { text-align: center; transform: scale(0.5); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .victory-overlay.show .victory-content { transform: scale(1); }
+    .victory-text {
+      font-size: 56px; font-weight: 900; color: #fff;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 4px 8px rgba(0, 0, 0, 0.3);
+      margin-bottom: 30px; animation: bounce 0.6s ease-in-out infinite alternate;
+    }
+    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+    .play-again-btn {
+      padding: 16px 40px; font-size: 22px; font-weight: 700; color: #fff;
+      background: linear-gradient(145deg, #ff9a56, #ff6b35); border: none; border-radius: 50px;
+      cursor: pointer; box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4); transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .play-again-btn:active { transform: scale(0.95); box-shadow: 0 3px 10px rgba(255, 107, 53, 0.4); }
+    .confetti { position: fixed; width: 10px; height: 10px; pointer-events: none; z-index: 999; }
+    .cell.victory .ball { animation: victoryBounce 0.6s ease-in-out infinite alternate; }
+    .cell.victory:nth-child(2) .ball { animation-delay: 0.1s; }
+    .cell.victory:nth-child(3) .ball { animation-delay: 0.2s; }
+    .cell.victory:nth-child(4) .ball { animation-delay: 0.15s; }
+    .cell.victory:nth-child(5) .ball { animation-delay: 0.25s; }
+    .cell.victory:nth-child(6) .ball { animation-delay: 0.05s; }
+    .cell.victory:nth-child(7) .ball { animation-delay: 0.3s; }
+    .cell.victory:nth-child(8) .ball { animation-delay: 0.1s; }
+    .cell.victory:nth-child(9) .ball { animation-delay: 0.2s; }
+    @keyframes victoryBounce { from { transform: translateY(0) scale(1); } to { transform: translateY(-12px) scale(1.1); } }
+    .settings-overlay {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4);
+      display: flex; align-items: flex-end; justify-content: center; z-index: 2000;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .settings-overlay.show { opacity: 1; pointer-events: auto; }
+    .settings-panel {
+      width: 100%; max-width: 420px; background: #fff; border-radius: 28px 28px 0 0;
+      padding: 24px 20px 32px; transform: translateY(100%);
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); max-height: 80vh; overflow-y: auto;
+    }
+    .settings-overlay.show .settings-panel { transform: translateY(0); }
+    .settings-title { font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 20px; color: #333; }
+    .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #f0f0f0; }
+    .setting-row:last-child { border-bottom: none; }
+    .setting-label { font-size: 16px; font-weight: 600; color: #333; }
+    .setting-desc { font-size: 13px; color: #999; margin-top: 2px; }
+    .toggle {
+      width: 52px; height: 30px; background: #ddd; border-radius: 15px;
+      position: relative; cursor: pointer; transition: background 0.25s; flex-shrink: 0;
+    }
+    .toggle.on { background: #4ecdc4; }
+    .toggle::after {
+      content: ''; position: absolute; top: 3px; left: 3px;
+      width: 24px; height: 24px; background: #fff; border-radius: 50%;
+      transition: transform 0.25s; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+    .toggle.on::after { transform: translateX(22px); }
+    .option-group { display: flex; gap: 8px; flex-shrink: 0; }
+    .option-btn {
+      padding: 6px 12px; font-size: 14px; font-weight: 600;
+      border: 2px solid #e0e0e0; background: #fff; border-radius: 20px;
+      cursor: pointer; color: #666; transition: all 0.2s;
+    }
+    .option-btn.active { border-color: #4ecdc4; background: #e8f8f5; color: #2a9d8f; }
+    .close-settings {
+      width: 100%; margin-top: 20px; padding: 14px; font-size: 17px;
+      font-weight: 700; color: #fff; background: linear-gradient(145deg, #667eea, #764ba2);
+      border: none; border-radius: 50px; cursor: pointer;
+    }
+    .close-settings:active { transform: scale(0.98); }
+    @media (max-width: 360px) {
+      .cell { min-width: 50px; min-height: 50px; }
+      .grid { gap: 8px; }
+      .game-container { padding: 12px; }
+      .victory-text { font-size: 44px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <button class="icon-btn" id="settingsBtn" title="设置">⚙️</button>
+    <div class="hint-preview" id="hintPreview">
+      <span class="label">目标</span>
+      <div class="hint-grid" id="hintGrid"></div>
+    </div>
+    <div style="width:48px"></div>
+  </div>
+  <div class="game-container">
+    <div class="grid" id="grid"></div>
+  </div>
+  <div class="bottom-bar">
+    <button class="restart-btn" id="restartBtn" title="重新开始">🔄</button>
+  </div>
+  <div class="victory-overlay" id="victoryOverlay">
+    <div class="victory-content">
+      <div class="victory-text">太棒了！</div>
+      <button class="play-again-btn" id="playAgainBtn">再来一局</button>
+    </div>
+  </div>
+  <div class="settings-overlay" id="settingsOverlay">
+    <div class="settings-panel">
+      <div class="settings-title">游戏设置</div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">颜色数量</div>
+          <div class="setting-desc">颜色越多难度越高</div>
+        </div>
+        <div class="option-group" id="colorOptions">
+          <button class="option-btn" data-colors="2">2</button>
+          <button class="option-btn active" data-colors="3">3</button>
+          <button class="option-btn" data-colors="4">4</button>
+          <button class="option-btn" data-colors="5">5</button>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">目标提示</div>
+          <div class="setting-desc">显示目标图样</div>
+        </div>
+        <div class="toggle on" id="hintToggle"></div>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">音效</div>
+          <div class="setting-desc">游戏音效开关</div>
+        </div>
+        <div class="toggle on" id="soundToggle"></div>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">胜利条件</div>
+          <div class="setting-desc">达成条件即可获胜</div>
+        </div>
+        <div class="option-group" id="winOptions">
+          <button class="option-btn active" data-win="rows">行</button>
+          <button class="option-btn" data-win="cols">列</button>
+          <button class="option-btn" data-win="both">都行</button>
+        </div>
+      </div>
+      <button class="close-settings" id="closeSettingsBtn">开始游戏</button>
+    </div>
+  </div>
+
+  <script>
+    const COLORS = ['red', 'yellow', 'blue', 'green', 'purple'];
+    let settings = { colorCount: 3, showHint: true, soundOn: true, winCondition: 'cols' };
+    let rows = 3, cols = 3;
+    let board = [], targetBoard = [];
+    let selectedCell = null;
+    let isDragging = false, isSwapping = false;
+    let dragBall = null;
+    let dragStartPos = { x: 0, y: 0 };
+    let dragOffset = { x: 0, y: 0 };
+    let gameWon = false;
+    let audioCtx = null;
+
+    const gridEl = document.getElementById('grid');
+    const hintGridEl = document.getElementById('hintGrid');
+    const hintPreviewEl = document.getElementById('hintPreview');
+    const restartBtn = document.getElementById('restartBtn');
+    const victoryOverlay = document.getElementById('victoryOverlay');
+    const playAgainBtn = document.getElementById('playAgainBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsOverlay = document.getElementById('settingsOverlay');
+    const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+    const hintToggle = document.getElementById('hintToggle');
+    const soundToggle = document.getElementById('soundToggle');
+    const colorOptions = document.getElementById('colorOptions');
+    const winOptions = document.getElementById('winOptions');
+
+    function init() {
+      loadSettings();
+      applySettingsUI();
+      newGame();
+      setupEvents();
+    }
+
+    function saveSettings() {
+      try { localStorage.setItem('rainbowBallsSettings', JSON.stringify(settings)); } catch (e) {}
+    }
+
+    function loadSettings() {
+      try {
+        const saved = localStorage.getItem('rainbowBallsSettings');
+        if (saved) settings = { ...settings, ...JSON.parse(saved) };
+      } catch (e) {}
+    }
+
+    function applySettingsUI() {
+      colorOptions.querySelectorAll('.option-btn').forEach(btn => {
+        btn.classList.toggle('active', parseInt(btn.dataset.colors) === settings.colorCount);
+      });
+      hintToggle.classList.toggle('on', settings.showHint);
+      hintPreviewEl.style.display = settings.showHint ? 'flex' : 'none';
+      soundToggle.classList.toggle('on', settings.soundOn);
+      winOptions.querySelectorAll('.option-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.win === settings.winCondition);
+      });
+    }
+
+    function newGame() {
+      gameWon = false;
+      victoryOverlay.classList.remove('show');
+      clearConfetti();
+      selectedCell = null;
+      const n = settings.colorCount;
+      cols = n;
+      rows = 3;
+      gridEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      gridEl.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+      hintGridEl.style.gridTemplateColumns = `repeat(${cols}, 18px)`;
+      hintGridEl.style.gridTemplateRows = `repeat(${rows}, 18px)`;
+
+      // 生成目标布局（每列同色，确保使用所有 n 种颜色）
+      targetBoard = [];
+      const colorIndices = [];
+      for (let i = 0; i < n; i++) colorIndices.push(i);
+      const shuffled = shuffleArray([...colorIndices]);
+      for (let r = 0; r < rows; r++) {
+        targetBoard[r] = [];
+        for (let c = 0; c < cols; c++) {
+          targetBoard[r][c] = shuffled[c % n];
+        }
+      }
+
+      // 复制到当前棋盘
+      board = targetBoard.map(row => [...row]);
+
+      // 随机交换打乱
+      const totalCells = rows * cols;
+      const shuffleMoves = Math.floor(totalCells * 1.5) + Math.floor(Math.random() * totalCells);
+      let lastSwap = null;
+      for (let i = 0; i < shuffleMoves; i++) {
+        let r1, c1, r2, c2, attempts = 0;
+        do {
+          r1 = Math.floor(Math.random() * rows);
+          c1 = Math.floor(Math.random() * cols);
+          r2 = Math.floor(Math.random() * rows);
+          c2 = Math.floor(Math.random() * cols);
+          attempts++;
+        } while (
+          (r1 === r2 && c1 === c2) ||
+          (lastSwap && lastSwap.r1 === r2 && lastSwap.c1 === c2 && lastSwap.r2 === r1 && lastSwap.c2 === c1) ||
+          attempts > 30
+        );
+        const temp = board[r1][c1];
+        board[r1][c1] = board[r2][c2];
+        board[r2][c2] = temp;
+        lastSwap = { r1, c1, r2, c2 };
+      }
+
+      if (checkWin()) { newGame(); return; }
+      renderBoard();
+      renderHint();
+    }
+
+    function shuffleArray(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function renderBoard() {
+      gridEl.innerHTML = '';
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          cell.dataset.row = r;
+          cell.dataset.col = c;
+          const ball = document.createElement('div');
+          ball.className = 'ball ' + COLORS[board[r][c]];
+          ball.dataset.row = r;
+          ball.dataset.col = c;
+          cell.appendChild(ball);
+          gridEl.appendChild(cell);
+        }
+      }
+    }
+
+    function renderHint() {
+      hintGridEl.innerHTML = '';
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const cell = document.createElement('div');
+          cell.className = 'hint-cell';
+          const colorIdx = targetBoard[r][c];
+          const gradients = {
+            0: 'linear-gradient(145deg, #ff7676, #e64545)',
+            1: 'linear-gradient(145deg, #ffe566, #ffc42c)',
+            2: 'linear-gradient(145deg, #6cb8ff, #3a8ee6)',
+            3: 'linear-gradient(145deg, #7be495, #4caf50)',
+            4: 'linear-gradient(145deg, #c792ea, #9c64d1)'
+          };
+          cell.style.background = gradients[colorIdx] || gradients[0];
+          hintGridEl.appendChild(cell);
+        }
+      }
+    }
+
+    function handleCellClick(row, col) {
+      if (gameWon || isDragging || isSwapping) return;
+      playSound('click');
+      if (selectedCell === null) {
+        selectedCell = { row, col };
+        updateSelectedUI();
+      } else if (selectedCell.row === row && selectedCell.col === col) {
+        selectedCell = null;
+        updateSelectedUI();
+      } else {
+        swapBalls(selectedCell.row, selectedCell.col, row, col);
+        selectedCell = null;
+        updateSelectedUI();
+      }
+    }
+
+    function updateSelectedUI() {
+      const cells = gridEl.querySelectorAll('.cell');
+      cells.forEach(cell => cell.classList.remove('selected'));
+      if (selectedCell) {
+        const idx = selectedCell.row * cols + selectedCell.col;
+        cells[idx].classList.add('selected');
+      }
+    }
+
+    function swapBalls(r1, c1, r2, c2) {
+      const temp = board[r1][c1];
+      board[r1][c1] = board[r2][c2];
+      board[r2][c2] = temp;
+      playSound('swap');
+      isSwapping = true;
+      const cells = gridEl.querySelectorAll('.cell');
+      const cell1 = cells[r1 * cols + c1];
+      const cell2 = cells[r2 * cols + c2];
+      const ball1 = cell1.querySelector('.ball');
+      const ball2 = cell2.querySelector('.ball');
+      const rect1 = ball1.getBoundingClientRect();
+      const rect2 = ball2.getBoundingClientRect();
+      const dx = rect2.left - rect1.left;
+      const dy = rect2.top - rect1.top;
+      ball1.classList.add('swapping');
+      ball2.classList.add('swapping');
+      ball1.style.transform = `translate(${dx}px, ${dy}px)`;
+      ball2.style.transform = `translate(${-dx}px, ${-dy}px)`;
+      setTimeout(() => {
+        renderBoard();
+        updateSelectedUI();
+        isSwapping = false;
+        if (checkWin()) handleVictory();
+      }, 300);
+    }
+
+    function checkWin() {
+      const winCond = settings.winCondition;
+      const rowsOk = checkAllRows();
+      const colsOk = checkAllCols();
+      if (winCond === 'rows') return rowsOk;
+      if (winCond === 'cols') return colsOk;
+      if (winCond === 'both') return rowsOk || colsOk;
+      return false;
+    }
+
+    function checkAllRows() {
+      for (let r = 0; r < rows; r++) {
+        const color = board[r][0];
+        for (let c = 1; c < cols; c++) {
+          if (board[r][c] !== color) return false;
+        }
+      }
+      return true;
+    }
+
+    function checkAllCols() {
+      for (let c = 0; c < cols; c++) {
+        const color = board[0][c];
+        for (let r = 1; r < rows; r++) {
+          if (board[r][c] !== color) return false;
+        }
+      }
+      return true;
+    }
+
+    function handleVictory() {
+      gameWon = true;
+      playSound('victory');
+      const cells = gridEl.querySelectorAll('.cell');
+      cells.forEach(cell => cell.classList.add('victory'));
+      createConfetti();
+      setTimeout(() => { victoryOverlay.classList.add('show'); }, 800);
+    }
+
+    function createConfetti() {
+      const colors = ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#ff922b', '#cc5de8'];
+      for (let i = 0; i < 60; i++) {
+        setTimeout(() => {
+          const confetti = document.createElement('div');
+          confetti.className = 'confetti';
+          confetti.style.left = Math.random() * 100 + 'vw';
+          confetti.style.top = '-20px';
+          confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+          confetti.style.width = (6 + Math.random() * 8) + 'px';
+          confetti.style.height = (6 + Math.random() * 8) + 'px';
+          confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+          document.body.appendChild(confetti);
+          const duration = 2 + Math.random() * 2;
+          const sway = (Math.random() - 0.5) * 200;
+          confetti.animate([
+            { transform: 'translate(0, 0) rotate(0deg)', opacity: 1 },
+            { transform: `translate(${sway}px, 100vh) rotate(720deg)`, opacity: 0.8 }
+          ], {
+            duration: duration * 1000,
+            easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            fill: 'forwards'
+          }).onfinish = () => confetti.remove();
+        }, i * 30);
+      }
+    }
+
+    function clearConfetti() {
+      document.querySelectorAll('.confetti').forEach(c => c.remove());
+    }
+
+    // 拖拽功能
+    function handleDragStart(e, row, col, ballEl) {
+      if (gameWon) return;
+      e.preventDefault();
+      isDragging = true;
+      dragBall = ballEl;
+      const rect = ballEl.getBoundingClientRect();
+      const origWidth = rect.width;
+      const origHeight = rect.height;
+      dragBall.classList.add('dragging');
+      dragBall.style.width = origWidth + 'px';
+      dragBall.style.height = origHeight + 'px';
+      const touch = e.touches ? e.touches[0] : e;
+      dragStartPos = { x: rect.left, y: rect.top };
+      dragOffset = {
+        x: touch.clientX - rect.left - rect.width / 2,
+        y: touch.clientY - rect.top - rect.height / 2
+      };
+      dragBall.style.position = 'fixed';
+      dragBall.style.left = rect.left + 'px';
+      dragBall.style.top = rect.top + 'px';
+      dragBall.style.zIndex = '100';
+      dragBall.style.pointerEvents = 'none';
+    }
+
+    function handleDragMove(e) {
+      if (!isDragging || !dragBall) return;
+      e.preventDefault();
+      const touch = e.touches ? e.touches[0] : e;
+      const ballSize = dragBall.offsetWidth;
+      const x = touch.clientX - dragOffset.x - ballSize / 2;
+      const y = touch.clientY - dragOffset.y - ballSize / 2;
+      dragBall.style.left = x + 'px';
+      dragBall.style.top = y + 'px';
+      const cells = gridEl.querySelectorAll('.cell');
+      cells.forEach(cell => cell.classList.remove('drag-over'));
+      const cellBelow = getCellAtPoint(touch.clientX, touch.clientY);
+      if (cellBelow) cellBelow.classList.add('drag-over');
+    }
+
+    function handleDragEnd(e) {
+      if (!isDragging || !dragBall) return;
+      const touch = e.changedTouches ? e.changedTouches[0] : e;
+      const targetCell = getCellAtPoint(touch.clientX, touch.clientY);
+      const fromRow = parseInt(dragBall.dataset.row);
+      const fromCol = parseInt(dragBall.dataset.col);
+      dragBall.classList.remove('dragging');
+      dragBall.style.position = '';
+      dragBall.style.left = '';
+      dragBall.style.top = '';
+      dragBall.style.zIndex = '';
+      dragBall.style.pointerEvents = '';
+      dragBall.style.width = '';
+      dragBall.style.height = '';
+      const cells = gridEl.querySelectorAll('.cell');
+      cells.forEach(cell => cell.classList.remove('drag-over'));
+      isDragging = false;
+      if (targetCell) {
+        const toRow = parseInt(targetCell.dataset.row);
+        const toCol = parseInt(targetCell.dataset.col);
+        if (fromRow !== toRow || fromCol !== toCol) {
+          swapBalls(fromRow, fromCol, toRow, toCol);
+          dragBall = null;
+          return;
+        }
+      }
+      dragBall = null;
+      handleCellClick(fromRow, fromCol);
+    }
+
+    function getCellAtPoint(x, y) {
+      const cells = gridEl.querySelectorAll('.cell');
+      for (const cell of cells) {
+        const rect = cell.getBoundingClientRect();
+        if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+          return cell;
+        }
+      }
+      return null;
+    }
+
+    // 音效
+    function playSound(type) {
+      if (!settings.soundOn) return;
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const now = audioCtx.currentTime;
+        if (type === 'click') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.frequency.value = 600;
+          osc.type = 'sine';
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        } else if (type === 'swap') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.frequency.setValueAtTime(400, now);
+          osc.frequency.exponentialRampToValueAtTime(700, now + 0.15);
+          osc.type = 'sine';
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.2);
+        } else if (type === 'victory') {
+          const notes = [523, 659, 784, 1047];
+          notes.forEach((freq, i) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.frequency.value = freq;
+            osc.type = 'sine';
+            const t = now + i * 0.12;
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(0.3, t + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.01, t + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(t);
+            osc.stop(t + 0.3);
+          });
+        }
+      } catch (e) {}
+    }
+
+    // 事件绑定
+    function setupEvents() {
+      restartBtn.addEventListener('click', () => {
+        restartBtn.classList.remove('spinning');
+        void restartBtn.offsetWidth;
+        restartBtn.classList.add('spinning');
+        playSound('click');
+        setTimeout(newGame, 300);
+      });
+
+      playAgainBtn.addEventListener('click', () => {
+        playSound('click');
+        newGame();
+      });
+
+      settingsBtn.addEventListener('click', () => {
+        playSound('click');
+        settingsOverlay.classList.add('show');
+      });
+
+      closeSettingsBtn.addEventListener('click', () => {
+        playSound('click');
+        settingsOverlay.classList.remove('show');
+        newGame();
+      });
+
+      settingsOverlay.addEventListener('click', (e) => {
+        if (e.target === settingsOverlay) settingsOverlay.classList.remove('show');
+      });
+
+      hintToggle.addEventListener('click', () => {
+        settings.showHint = !settings.showHint;
+        hintToggle.classList.toggle('on', settings.showHint);
+        hintPreviewEl.style.display = settings.showHint ? 'flex' : 'none';
+        saveSettings();
+        playSound('click');
+      });
+
+      soundToggle.addEventListener('click', () => {
+        settings.soundOn = !settings.soundOn;
+        soundToggle.classList.toggle('on', settings.soundOn);
+        saveSettings();
+        if (settings.soundOn) playSound('click');
+      });
+
+      colorOptions.querySelectorAll('.option-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          settings.colorCount = parseInt(btn.dataset.colors);
+          colorOptions.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          saveSettings();
+          playSound('click');
+        });
+      });
+
+      winOptions.querySelectorAll('.option-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          settings.winCondition = btn.dataset.win;
+          winOptions.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          saveSettings();
+          playSound('click');
+        });
+      });
+
+      gridEl.addEventListener('mousedown', handleGridPointerDown);
+      gridEl.addEventListener('touchstart', handleGridPointerDown, { passive: false });
+      document.addEventListener('mousemove', handleDragMove);
+      document.addEventListener('touchmove', handleDragMove, { passive: false });
+      document.addEventListener('mouseup', handleDragEnd);
+      document.addEventListener('touchend', handleDragEnd);
+    }
+
+    function handleGridPointerDown(e) {
+      const ball = e.target.closest('.ball');
+      if (!ball) return;
+      const row = parseInt(ball.dataset.row);
+      const col = parseInt(ball.dataset.col);
+      const startX = e.touches ? e.touches[0].clientX : e.clientX;
+      const startY = e.touches ? e.touches[0].clientY : e.clientY;
+      let moved = false;
+      let dragStarted = false;
+      const DRAG_THRESHOLD = 6;
+
+      function onMove(ev) {
+        if (dragStarted) return;
+        const mx = ev.touches ? ev.touches[0].clientX : ev.clientX;
+        const my = ev.touches ? ev.touches[0].clientY : ev.clientY;
+        const dist = Math.sqrt((mx - startX) ** 2 + (my - startY) ** 2);
+        if (dist > DRAG_THRESHOLD && !moved) {
+          moved = true;
+          dragStarted = true;
+          handleDragStart(e, row, col, ball);
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('touchmove', onMove);
+        }
+      }
+
+      function onUp() {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        document.removeEventListener('touchend', onUp);
+        if (!moved && !dragStarted) handleCellClick(row, col);
+      }
+
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('touchmove', onMove, { passive: false });
+      document.addEventListener('mouseup', onUp);
+      document.addEventListener('touchend', onUp);
+    }
+
+    init();
+  </script>
+</body>
+</html>
