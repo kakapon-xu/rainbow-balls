@@ -1,4 +1,4 @@
-f<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -80,8 +80,8 @@ f<!DOCTYPE html>
 
     .hint-grid {
       display: grid;
-      grid-template-columns: repeat(3, 18px);
-      grid-template-rows: repeat(3, 18px);
+      grid-auto-columns: 18px;
+      grid-auto-rows: 18px;
       gap: 3px;
     }
 
@@ -102,14 +102,15 @@ f<!DOCTYPE html>
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(3, 1fr);
+      grid-auto-columns: 1fr;
+      grid-auto-rows: 1fr;
       gap: 12px;
     }
 
     .cell {
-      width: 90px;
-      height: 90px;
+      aspect-ratio: 1;
+      min-width: 60px;
+      min-height: 60px;
       background: rgba(240, 248, 255, 0.8);
       border-radius: 20px;
       display: flex;
@@ -140,8 +141,8 @@ f<!DOCTYPE html>
 
     /* 球 */
     .ball {
-      width: 70px;
-      height: 70px;
+      width: 78%;
+      height: 78%;
       border-radius: 50%;
       cursor: pointer;
       position: relative;
@@ -155,10 +156,10 @@ f<!DOCTYPE html>
     .ball::before {
       content: '';
       position: absolute;
-      top: 12px;
-      left: 16px;
-      width: 20px;
-      height: 14px;
+      top: 15%;
+      left: 20%;
+      width: 25%;
+      height: 18%;
       background: rgba(255, 255, 255, 0.6);
       border-radius: 50%;
       transform: rotate(-30deg);
@@ -469,24 +470,14 @@ f<!DOCTYPE html>
     /* 响应式 */
     @media (max-width: 360px) {
       .cell {
-        width: 75px;
-        height: 75px;
-      }
-      .ball {
-        width: 58px;
-        height: 58px;
-      }
-      .ball::before {
-        top: 10px;
-        left: 13px;
-        width: 16px;
-        height: 11px;
+        min-width: 50px;
+        min-height: 50px;
       }
       .grid {
-        gap: 10px;
+        gap: 8px;
       }
       .game-container {
-        padding: 16px;
+        padding: 12px;
       }
       .victory-text {
         font-size: 44px;
@@ -597,7 +588,9 @@ f<!DOCTYPE html>
     };
 
     // 游戏状态
-    let board = []; // 3x3 二维数组，存颜色索引
+    let rows = 3; // 行数（固定3行）
+    let cols = 3; // 列数（=颜色数量）
+    let board = []; // 二维数组，存颜色索引
     let targetBoard = []; // 目标布局
     let selectedCell = null; // {row, col} 或 null
     let isDragging = false;
@@ -670,6 +663,14 @@ f<!DOCTYPE html>
       selectedCell = null;
 
       const n = settings.colorCount;
+      cols = n; // 列数 = 颜色数量
+      rows = 3; // 行数固定为3
+      
+      // 设置grid列数
+      gridEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      gridEl.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+      hintGridEl.style.gridTemplateColumns = `repeat(${cols}, 18px)`;
+      hintGridEl.style.gridTemplateRows = `repeat(${rows}, 18px)`;
       
       // 1. 先生成目标布局（每行同色 / 每列同色）
       targetBoard = [];
@@ -681,17 +682,17 @@ f<!DOCTYPE html>
       
       if (settings.winCondition === 'cols') {
         // 每列同色
-        for (let r = 0; r < 3; r++) {
+        for (let r = 0; r < rows; r++) {
           targetBoard[r] = [];
-          for (let c = 0; c < 3; c++) {
+          for (let c = 0; c < cols; c++) {
             targetBoard[r][c] = shuffled[c % n];
           }
         }
       } else {
         // 每行同色（rows 或 both 都用行做目标）
-        for (let r = 0; r < 3; r++) {
+        for (let r = 0; r < rows; r++) {
           targetBoard[r] = [];
-          for (let c = 0; c < 3; c++) {
+          for (let c = 0; c < cols; c++) {
             targetBoard[r][c] = shuffled[r % n];
           }
         }
@@ -701,21 +702,22 @@ f<!DOCTYPE html>
       board = targetBoard.map(row => [...row]);
 
       // 3. 随机交换打乱（保证有解）
-      const shuffleMoves = 8 + Math.floor(Math.random() * 5); // 8-12次交换
+      const totalCells = rows * cols;
+      const shuffleMoves = Math.floor(totalCells * 1.5) + Math.floor(Math.random() * totalCells);
       let lastSwap = null;
       for (let i = 0; i < shuffleMoves; i++) {
         let r1, c1, r2, c2;
         let attempts = 0;
         do {
-          r1 = Math.floor(Math.random() * 3);
-          c1 = Math.floor(Math.random() * 3);
-          r2 = Math.floor(Math.random() * 3);
-          c2 = Math.floor(Math.random() * 3);
+          r1 = Math.floor(Math.random() * rows);
+          c1 = Math.floor(Math.random() * cols);
+          r2 = Math.floor(Math.random() * rows);
+          c2 = Math.floor(Math.random() * cols);
           attempts++;
         } while (
           (r1 === r2 && c1 === c2) || // 不能和自己交换
           (lastSwap && lastSwap.r1 === r2 && lastSwap.c1 === c2 && lastSwap.r2 === r1 && lastSwap.c2 === c1) || // 不和上一次反向
-          attempts > 20
+          attempts > 30
         );
         const temp = board[r1][c1];
         board[r1][c1] = board[r2][c2];
@@ -746,8 +748,8 @@ f<!DOCTYPE html>
     // ==================== 渲染 ====================
     function renderBoard() {
       gridEl.innerHTML = '';
-      for (let r = 0; r < 3; r++) {
-        for (let c = 0; c < 3; c++) {
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
           const cell = document.createElement('div');
           cell.className = 'cell';
           cell.dataset.row = r;
@@ -766,8 +768,8 @@ f<!DOCTYPE html>
 
     function renderHint() {
       hintGridEl.innerHTML = '';
-      for (let r = 0; r < 3; r++) {
-        for (let c = 0; c < 3; c++) {
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
           const cell = document.createElement('div');
           cell.className = 'hint-cell ' + COLORS[targetBoard[r][c]];
           // 用背景色
@@ -814,7 +816,7 @@ f<!DOCTYPE html>
       const cells = gridEl.querySelectorAll('.cell');
       cells.forEach(cell => cell.classList.remove('selected'));
       if (selectedCell) {
-        const idx = selectedCell.row * 3 + selectedCell.col;
+        const idx = selectedCell.row * cols + selectedCell.col;
         cells[idx].classList.add('selected');
       }
     }
@@ -831,8 +833,8 @@ f<!DOCTYPE html>
 
       // 动画交换
       const cells = gridEl.querySelectorAll('.cell');
-      const cell1 = cells[r1 * 3 + c1];
-      const cell2 = cells[r2 * 3 + c2];
+      const cell1 = cells[r1 * cols + c1];
+      const cell2 = cells[r2 * cols + c2];
       const ball1 = cell1.querySelector('.ball');
       const ball2 = cell2.querySelector('.ball');
 
@@ -871,9 +873,9 @@ f<!DOCTYPE html>
     }
 
     function checkAllRows() {
-      for (let r = 0; r < 3; r++) {
+      for (let r = 0; r < rows; r++) {
         const color = board[r][0];
-        for (let c = 1; c < 3; c++) {
+        for (let c = 1; c < cols; c++) {
           if (board[r][c] !== color) return false;
         }
       }
@@ -881,9 +883,9 @@ f<!DOCTYPE html>
     }
 
     function checkAllCols() {
-      for (let c = 0; c < 3; c++) {
+      for (let c = 0; c < cols; c++) {
         const color = board[0][c];
-        for (let r = 1; r < 3; r++) {
+        for (let r = 1; r < rows; r++) {
           if (board[r][c] !== color) return false;
         }
       }
@@ -942,7 +944,7 @@ f<!DOCTYPE html>
       document.querySelectorAll('.confetti').forEach(c => c.remove());
     }
 
-    // ==================== 拖狽功能 ====================
+    // ==================== 拖拽功能 ====================
     function handleDragStart(e, row, col, ballEl) {
       if (gameWon) return;
       e.preventDefault();
@@ -973,8 +975,9 @@ f<!DOCTYPE html>
       e.preventDefault();
 
       const touch = e.touches ? e.touches[0] : e;
-      const x = touch.clientX - dragOffset.x - 35; // 球半径
-      const y = touch.clientY - dragOffset.y - 35;
+      const ballSize = dragBall.offsetWidth;
+      const x = touch.clientX - dragOffset.x - ballSize / 2;
+      const y = touch.clientY - dragOffset.y - ballSize / 2;
 
       dragBall.style.left = x + 'px';
       dragBall.style.top = y + 'px';
@@ -1068,13 +1071,13 @@ f<!DOCTYPE html>
           osc.frequency.exponentialRampToValueAtTime(700, now + 0.15);
           osc.type = 'sine';
           gain.gain.setValueAtTime(0.25, now);
-          gain.gain.exponentialRampToValueAtime(0.01, now + 0.2);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
           osc.connect(gain);
           gain.connect(audioCtx.destination);
           osc.start(now);
           osc.stop(now + 0.2);
         } else if (type === 'victory') {
-          // 胜利陳效 - 为��音昶
+          // 胜利音效 - 上升音阶
           const notes = [523, 659, 784, 1047];
           notes.forEach((freq, i) => {
             const osc = audioCtx.createOscillator();
@@ -1084,7 +1087,7 @@ f<!DOCTYPE html>
             const t = now + i * 0.12;
             gain.gain.setValueAtTime(0, t);
             gain.gain.linearRampToValueAtTime(0.3, t + 0.02);
-            gain.gain.exponentialRampToValueAtime(0.01, t + 0.3);
+            gain.gain.exponentialRampToValueAtTime(0.01, t + 0.3);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.start(t);
@@ -1096,7 +1099,7 @@ f<!DOCTYPE html>
       }
     }
 
-    // =================== 事件绑定 ====================
+    // ==================== 事件绑定 ====================
     function setupEvents() {
       // 重开按钮
       restartBtn.addEventListener('click', () => {
@@ -1197,6 +1200,7 @@ f<!DOCTYPE html>
 
       let moved = false;
       let dragStarted = false;
+      const DRAG_THRESHOLD = 6; // 拖拽阈值，像素
 
       function onMove(ev) {
         if (dragStarted) return;
@@ -1204,7 +1208,7 @@ f<!DOCTYPE html>
         const my = ev.touches ? ev.touches[0].clientY : ev.clientY;
         const dist = Math.sqrt((mx - startX) ** 2 + (my - startY) ** 2);
         
-        if (dist > 8 && !moved) {
+        if (dist > DRAG_THRESHOLD && !moved) {
           moved = true;
           dragStarted = true;
           handleDragStart(e, row, col, ball);
@@ -1232,11 +1236,8 @@ f<!DOCTYPE html>
       document.addEventListener('touchend', onUp);
     }
 
-    // =================== 二炨 ====================
+    // ==================== 启动 ====================
     init();
   </script>
 </body>
 </html>
-
-
-<!-- Fix encoding issue -->
